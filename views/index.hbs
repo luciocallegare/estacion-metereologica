@@ -1,0 +1,72 @@
+  <script type="text/javascript">
+    google.charts.load('current', {'packages':['gauge']});
+    
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+
+      var data = google.visualization.arrayToDataTable([
+        ['Label', 'Value'],
+        ['Temperatura', {{temperatura}}],
+        ['CPU', 55],
+        ['Network', 68]
+      ]);
+
+      var options = {
+        width: 400, height: 120,
+        redFrom: 90, redTo: 100,
+        yellowFrom:75, yellowTo: 90,
+        minorTicks: 5
+      };
+
+      var chart = new google.visualization.Gauge(document.getElementById('chart_div'));
+
+      chart.draw(data, options);
+
+
+      setInterval(function() {
+       $.get('/datos', (d,s) =>{
+         data.setValue(0, 1,d.temperatura)
+         $('rockiot-ui').attr('value',d.temperatura)
+       })
+        chart.draw(data, options);
+      }, 100);
+
+      /*setInterval(function() {
+        console.log(0, 1, 40 + Math.round(60 * Math.random()))
+        data.setValue(0, 1, 40 + Math.round(60 * Math.random()));
+        chart.draw(data, options);
+      }, 13000);
+      setInterval(function() {
+        data.setValue(1, 1, 40 + Math.round(60 * Math.random()));
+        chart.draw(data, options);
+      }, 5000);
+      setInterval(function() {
+        data.setValue(2, 1, 60 + Math.round(20 * Math.random()));
+        chart.draw(data, options);
+      }, 26000);*/
+    }
+  </script> 
+    <h1>Dashboard</h1>
+    <div class="temperatura">
+        <h2>Temperatura</h2>
+        <div id="chart_div" style="width: 400px; height: 120px;"></div>
+    </div>
+    <div class="humedad">
+        <h2>Humedad</h2>
+        <rockiot-ui
+          type="gauge"
+          variation="radial"
+          serial="001"
+          variation="radial"
+          min="0"
+          max="40"
+          value="{{temperatura}}"
+          autocolor = 1>
+        </rockiot-ui>
+        <p></p>
+    </div>
+    <div class="viento">
+        <h2>Viento</h2>
+        <p></p>
+    </div>
