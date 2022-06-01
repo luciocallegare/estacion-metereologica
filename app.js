@@ -41,6 +41,10 @@ app.listen(PORT, ()=>{
     console.log('Listening at port',PORT)
 })  
 
+app.get('/gauges-ejemplos', (req,res)=>{
+    res.sendFile(path.join(__dirname,'index.html'))
+})
+
 app.get('/', (req, res) =>{
     res.render('index',{temperatura: tempAct})
 })

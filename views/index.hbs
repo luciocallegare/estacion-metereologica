@@ -1,72 +1,87 @@
   <script type="text/javascript">
-    google.charts.load('current', {'packages':['gauge']});
-    
-    google.charts.setOnLoadCallback(drawChart);
-
-    function drawChart() {
-
-      var data = google.visualization.arrayToDataTable([
-        ['Label', 'Value'],
-        ['Temperatura', {{temperatura}}],
-        ['CPU', 55],
-        ['Network', 68]
-      ]);
-
-      var options = {
-        width: 400, height: 120,
-        redFrom: 90, redTo: 100,
-        yellowFrom:75, yellowTo: 90,
-        minorTicks: 5
-      };
-
-      var chart = new google.visualization.Gauge(document.getElementById('chart_div'));
-
-      chart.draw(data, options);
-
 
       setInterval(function() {
        $.get('/datos', (d,s) =>{
-         data.setValue(0, 1,d.temperatura)
          $('rockiot-ui').attr('value',d.temperatura)
        })
-        chart.draw(data, options);
       }, 100);
 
-      /*setInterval(function() {
-        console.log(0, 1, 40 + Math.round(60 * Math.random()))
-        data.setValue(0, 1, 40 + Math.round(60 * Math.random()));
-        chart.draw(data, options);
-      }, 13000);
-      setInterval(function() {
-        data.setValue(1, 1, 40 + Math.round(60 * Math.random()));
-        chart.draw(data, options);
-      }, 5000);
-      setInterval(function() {
-        data.setValue(2, 1, 60 + Math.round(20 * Math.random()));
-        chart.draw(data, options);
-      }, 26000);*/
-    }
   </script> 
     <h1>Dashboard</h1>
     <div class="temperatura">
         <h2>Temperatura</h2>
-        <div id="chart_div" style="width: 400px; height: 120px;"></div>
+        <rockiot-ui
+          type="gauge"
+          variation="linear"
+          orientation="vertical"
+          id="linear_3"
+          serial="linear_3"
+          min="0"
+          max="40"
+          units="ºC"
+          name = "Temperatura"
+          value="{{temperatura}}"
+          autocolor = "1"
+          click-action="test"
+          text-color="#333"
+          scale-text-color="#333"
+          bar-color="#111"
+          progress-color="#4ea5f1"
+          control-bg="none"
+          control-color="#888"
+          scale="1"
+          smallscale="1"
+          needle="1"
+          needle-color="#ff8800"
+          zones="#ff0000,#ff8800,#00ff00">
+        </rockiot-ui>
     </div>
     <div class="humedad">
         <h2>Humedad</h2>
-        <rockiot-ui
-          type="gauge"
-          variation="radial"
-          serial="001"
-          variation="radial"
-          min="0"
-          max="40"
-          value="{{temperatura}}"
-          autocolor = 1>
-        </rockiot-ui>
-        <p></p>
+          <rockiot-ui
+            type="gauge"
+            variation="level"
+            serial="level_0"
+            id="level_0"
+            min="0"
+            max="100"
+            value="10"
+            progress-color="#4ea5f1"
+            bar-border-color="#000"
+            name = "Humedad"
+          ></rockiot-ui>        
     </div>
     <div class="viento">
         <h2>Viento</h2>
-        <p></p>
+          <rockiot-ui
+            class="rockiot-element gauge_round_lg gauge_dark_gradient"
+            type="gauge"
+            variation="radial"
+            id="radial_3"
+            serial="radial_3"
+            name="Viento"
+            min="0"
+            max="100"
+            value="20"
+            units="km/h"
+            precision="2"
+            value-class="rockiot-radial-value-text"
+            scale="1"
+            smallscale="1"
+            ticks="5"
+            size="md"
+            radius="lg"
+            click-action="test"
+            text-color="#333"
+            scale-text-color="#333"
+            bar-color="#00000060"
+            progress-color="#4ea5f1"
+            control-bg="none"
+            control-color="#888"
+            needle="1"
+            svgwidth="300"
+            svgheight="300"
+            needle-color="#ff0000"
+            background="#000">
+          </rockiot-ui>        
     </div>
