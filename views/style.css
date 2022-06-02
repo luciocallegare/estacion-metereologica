@@ -1,3 +1,9 @@
-@keyframes wave {
-    
+.dashboard_body{
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+h1, h2{
+    text-align: center;
 }

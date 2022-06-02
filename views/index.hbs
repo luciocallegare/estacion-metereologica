@@ -2,86 +2,93 @@
 
       setInterval(function() {
        $.get('/datos', (d,s) =>{
-         $('rockiot-ui').attr('value',d.temperatura)
+         $('#termometro').attr('value',d.temperatura)
+         $('#viento').attr('value', d.viento )
+         //$('humedad').attr('value', d.humedad)
        })
       }, 100);
 
   </script> 
     <h1>Dashboard</h1>
-    <div class="temperatura">
-        <h2>Temperatura</h2>
-        <rockiot-ui
-          type="gauge"
-          variation="linear"
-          orientation="vertical"
-          id="linear_3"
-          serial="linear_3"
-          min="0"
-          max="40"
-          units="ºC"
-          name = "Temperatura"
-          value="{{temperatura}}"
-          autocolor = "1"
-          click-action="test"
-          text-color="#333"
-          scale-text-color="#333"
-          bar-color="#111"
-          progress-color="#4ea5f1"
-          control-bg="none"
-          control-color="#888"
-          scale="1"
-          smallscale="1"
-          needle="1"
-          needle-color="#ff8800"
-          zones="#ff0000,#ff8800,#00ff00">
-        </rockiot-ui>
-    </div>
-    <div class="humedad">
-        <h2>Humedad</h2>
+    <div class="dashboard_body">
+
+      <div class="viento">
+          <h2>Viento</h2>
+            <rockiot-ui
+              class="rockiot-element gauge_round_lg gauge_dark_gradient"
+              type="gauge"
+              variation="radial"
+              id="viento"
+              serial="radial_3"
+              name="Viento"
+              min="0"
+              max="100"
+              value="20"
+              units="km/h"
+              precision="2"
+              value-class="rockiot-radial-value-text"
+              value = {{viento}}
+              scale="1"
+              smallscale="1"
+              ticks="5"
+              size="md"
+              radius="lg"
+              click-action="test"
+              text-color="#333"
+              scale-text-color="#333"
+              bar-color="#00000060"
+              progress-color="#4ea5f1"
+              control-bg="none"
+              control-color="#888"
+              needle="1"
+              svgwidth="300"
+              svgheight="300"
+              needle-color="#ff0000"
+              background="#000">
+            </rockiot-ui>        
+      </div>
+      <div class="humedad">
+          <h2>Humedad</h2>
+            <rockiot-ui
+              type="gauge"
+              variation="level"
+              serial="level_0"
+              id="humedad"
+              min="0"
+              max="100"
+              value="10"
+              progress-color="#4ea5f1"
+              bar-border-color="#000"
+              name = "Humedad"
+            ></rockiot-ui>        
+      </div>
+      <div class="temperatura">
+          <h2>Temperatura</h2>
           <rockiot-ui
             type="gauge"
-            variation="level"
-            serial="level_0"
-            id="level_0"
+            variation="linear"
+            orientation="horizontal"
+            id="termometro"
+            serial="linear_3"
             min="0"
-            max="100"
-            value="10"
-            progress-color="#4ea5f1"
-            bar-border-color="#000"
-            name = "Humedad"
-          ></rockiot-ui>        
-    </div>
-    <div class="viento">
-        <h2>Viento</h2>
-          <rockiot-ui
-            class="rockiot-element gauge_round_lg gauge_dark_gradient"
-            type="gauge"
-            variation="radial"
-            id="radial_3"
-            serial="radial_3"
-            name="Viento"
-            min="0"
-            max="100"
-            value="20"
-            units="km/h"
-            precision="2"
-            value-class="rockiot-radial-value-text"
-            scale="1"
-            smallscale="1"
-            ticks="5"
-            size="md"
-            radius="lg"
+            max="40"
+            units="ºC"
+            name = "Temperatura"
+            value="{{temperatura}}"
+            autocolor = "1"
             click-action="test"
             text-color="#333"
             scale-text-color="#333"
-            bar-color="#00000060"
+            bar-color="#111"
             progress-color="#4ea5f1"
             control-bg="none"
             control-color="#888"
+            scale="1"
+            smallscale="1"
             needle="1"
-            svgwidth="300"
-            svgheight="300"
-            needle-color="#ff0000"
-            background="#000">
-          </rockiot-ui>        
+            needle-color="#ff8800"
+            zones="#00ff00,#ff8800,#ff0000">
+          </rockiot-ui>
+      </div>
+
     </div>

@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@serialport/bindings": "^9.2.9",
+    "@serialport/bindings-cpp": "^10.7.0",
     "express": "^4.18.1",
     "express-handlebars": "^6.0.6",
     "johnny-five": "^2.1.0",
@@ -9,7 +11,6 @@
   "name": "proyecto-estacion-climatica",
   "version": "1.0.0",
   "main": "app.js",
-  "devDependencies": {},
   "scripts": {
     "test": "npm start"
   },
