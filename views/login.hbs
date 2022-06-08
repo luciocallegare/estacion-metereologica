@@ -1,0 +1,18 @@
+    <section class="form-login">
+      <h5>Formulario Login</h5>
+
+      <form action="/home" method="POST">
+        <input class="controls" type="text" id="user" name="username" value="user" placeholder="Usuario" required >
+        <input class="controls" type="password" id="password" name="password" value="password" placeholder="Contraseña" required>
+        <input class="buttons" type="submit" name="" value="Ingresar">
+      </form>
+
+        <p><a href="#">¿Olvidastes tu Contraseña?</a></p>
+
+        {{#if error}}
+        <div class="error">
+            <p style="color: red; border:0; margin:30px;">Usuario o Contraseña erronea</p>
+        </div>
+        {{/if}}
+
+    </section>

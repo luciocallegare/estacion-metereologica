@@ -5,6 +5,8 @@
     "express": "^4.18.1",
     "express-handlebars": "^6.0.6",
     "johnny-five": "^2.1.0",
+    "mongodb": "^4.7.0",
+    "nodemailer": "^6.7.5",
     "path": "^0.12.7",
     "serialport": "^10.4.0"
   },
