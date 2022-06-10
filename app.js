@@ -10,7 +10,8 @@ const PIN_TEMP = "A2"
 const PIN_VIENTO = "A1"
 const { MongoClient } = require('mongodb');
 const uri = "mongodb+srv://luciocallegare:GdeYsxhi8awC0UZ8@cluster0.7ggn1.mongodb.net/?retryWrites=true&w=majority";
-
+const multer = require('multer');
+const upload = multer();
 
 const client = new MongoClient(uri);
 
@@ -22,7 +23,7 @@ var board = new five.Board();
 const bodyParser = require('body-parser')
 
 
-const urlencodedParser = bodyParser.urlencoded({encoded: false})
+const urlencodedParser = bodyParser.urlencoded({ extended: true })
 const jsonParser = bodyParser.json()
 
 app.set('views',path.join(__dirname, 'views'))
@@ -37,17 +38,12 @@ app.set('view engine', '.hbs')
 
 let tempAct = 0
 let vientoAct = 0
+let humedadAct = 0
 let data
 let usuario
 let valido = true
-
-const config = {
-    cantSensores:3,
-    tiempoMuestrasMin:60,
-    alarmaTempMax:40,
-    alarmaTempMin:0,
-
-}
+let config
+let dbInterval
 
 const mailer = async () =>{
 
@@ -80,10 +76,26 @@ const mailer = async () =>{
     }
 
 }
+
+const registrar = async () =>{
+        
+    const registro = {
+        temperatura: tempAct,
+        viento: vientoAct,
+        humedad: humedadAct,
+        registeredAt: new Date()
+    }
+
+    const data  = await client.db('estacionMetereologica').collection('registros').insertOne(registro)
+    console.log(data)
+  }
 //GdeYsxhi8awC0UZ8
 board.on("ready", async function() {
   try {
       await client.connect()
+
+      config = await client.db('estacionMetereologica').collection('configuracion').findOne({'ide':'unico'})
+      console.log("configuracion:",config)
       var led = new five.Led(13);
       led.on()
       var sensorTemp = new five.Sensor(PIN_TEMP);
@@ -97,11 +109,15 @@ board.on("ready", async function() {
       sensorViento.on('change', function() {
         vientoAct =  this.scaleTo(0,100)
       }) 
-  }catch (err){
+  
+      dbInterval = setInterval( registrar ,1000*60*parseInt(config.tiempoMuestrasMin))
+  
+    }catch (err){
       console.error(err)
   }
   
 });
+
 
 
 
@@ -177,12 +193,41 @@ app.get('/configuracion', async(req,res)=>{
     if (!usuario){
         res.redirect('/login')
     }
-
-    if (usuario.tipo == 'admin'){
-        res.send('Usar render configuracion de administrador')
+    else {
+        if (usuario.tipo == 'admin'){
+            res.render('config',config)
+        }
+    
+        if (usuario.tipo == 'user'){
+            res.send('Usar render configuracion de usuario')
     }
-
-    if (usuario.tipo == 'user'){
-        res.send('Usar render configuracion de usuario')
     }
+})
+
+app.post('/enviar-config',upload.none(), async(req,res)=>{
+
+    config = req.body
+
+    const temps = [config.alarmaTempMax,config.alarmaTempMin]
+
+    config.alarmaTemp = temps
+
+    clearInterval(dbInterval)
+
+    dbInterval = setInterval( registrar ,1000*60*parseInt(config.tiempoMuestrasMin))
+
+    try{
+        const data = await client.db('estacionMetereologica').collection('configuracion').updateOne({
+            'ide':'unico'
+            },
+            { $set:config },
+            { upsert:true }
+        ) 
+        console.log(data)
+        res.sendStatus(200)
+    }catch(err){
+        console.error(err)
+        res.sendStatus(500)
+    }
+    
 })
