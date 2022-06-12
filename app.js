@@ -89,6 +89,36 @@ const registrar = async () =>{
     const data  = await client.db('estacionMetereologica').collection('registros').insertOne(registro)
     console.log(data)
   }
+
+
+  const luminariaOn = (config) =>{
+
+    const desde = config.horarioLumOn.split(':')
+    const hasta = config.horarioLumOff.split(':')
+
+    const tiempoDesde = new Date()
+    const tiempoHasta = new Date()
+
+    tiempoDesde.setHours(parseInt(desde[0]),parseInt(desde[1]))
+    tiempoHasta.setHours(parseInt(hasta[0]),parseInt(hasta[1]))
+
+    
+    const tiempoAhora =  new Date()
+
+    if (tiempoDesde > tiempoHasta ){
+       
+        if (tiempoAhora > tiempoHasta){
+            tiempoHasta.setDate(tiempoAhora.getDate()+1)
+        }else {
+            tiempoDesde.setDate(tiempoAhora.getDate()-1)
+        }
+    }
+    
+    return tiempoAhora > tiempoDesde && tiempoAhora < tiempoHasta
+
+  }
+
+
 //GdeYsxhi8awC0UZ8
 board.on("ready", async function() {
   try {
@@ -97,7 +127,16 @@ board.on("ready", async function() {
       config = await client.db('estacionMetereologica').collection('configuracion').findOne({'ide':'unico'})
       console.log("configuracion:",config)
       var led = new five.Led(13);
-      led.on()
+      
+    luminariaOn(config)
+      setInterval(()=>{
+          if (luminariaOn(config)){
+              led.on()
+          }else{
+              led.off()
+          }
+      },1000*10)
+
       var sensorTemp = new five.Sensor(PIN_TEMP);
       var sensorViento = new five.Sensor(PIN_VIENTO)
       
@@ -130,7 +169,16 @@ app.get('/gauges-ejemplos', (req,res)=>{
 })
 
 app.get('/', (req, res, next) =>{
-    res.redirect('/login')
+
+    let data = {
+        'temperatura':tempAct, 
+        'viento':vientoAct
+    }
+
+    if (!usuario)
+        res.redirect('/login')
+    else
+        res.render('index')
 })
 
 app.get('/login', (req,res)=>{
@@ -171,17 +219,12 @@ app.get('/enviar-mail', async (req,res)=>{
 
 app.post('/home', urlencodedParser, async (req,res)=>{
 
-    let data = {
-        'temperatura':tempAct, 
-        'viento':vientoAct
-    }
-
     const usersCollection = client.db('estacionMetereologica').collection('users')
 
     usuario = await usersCollection.findOne(req.body)
 
     if (usuario){
-        res.render('index',data)
+        res.redirect('/')
     }else {
         valido = false
         res.redirect('login')

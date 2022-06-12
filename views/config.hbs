@@ -42,8 +42,10 @@
         <label for="horarioLumOff">Horario de encendido de luminaria</label>
         <input class="controls" type="time" name="horarioLumOff" id="horarioLumOff" value="{{horarioLumOff}}" placeholder="{{horarioLumOff}}">          
       </div>
-    
-    <input class="buttons config-button" type="submit" name="" value="Ingresar">
+      <div class="buttons_group">
+        <a href="/"><button type="button" class="buttons config-button" >Atrás</button></a>
+        <input class="buttons config-button" type="submit" name="" value="Ingresar">
+      </div>
       </form>
     
         <div id="modal_container" class="modal-container">
@@ -70,9 +72,7 @@
 
         const formData = new FormData(form);
 
-        for (var [key, value] of formData.entries()) { 
-          console.log(key, value);
-        }
+        console.log("hola")
 
         fetch('/enviar-config',{
           method : "POST",
