@@ -1,0 +1,101 @@
+    <section class="form-config">
+      <h5>Configuracion</h5>
+
+      <form id="configuracion" class="config-body">
+
+      <div class="input-group">
+        <label for="cantSensores">Cantidad de Sensores:</label>
+        <input class="controls" type="number" id="cantSensores" name="cantSensores" value="{{cantSensores}}" placeholder="{{cantSensores}}" >
+
+      </div>
+
+      <div class="input-group">
+        <label for="tiempoMuestrasMin">Tiempo entre muestras</label>
+        <input class="controls" type="number" id="tiempoMuestrasMin" name="tiempoMuestrasMin" value="{{tiempoMuestrasMin}}" placeholder="{{tiempoMuestrasMin}}">
+          
+      </div>
+      <div class="input-group">
+        <label for="alarmaTempMin">Alarma Temperaturas bajas</label>
+        <input class="controls" type="number" name="alarmaTempMin" id="alarmaTempMin" value="{{alarmaTemp.[0]}}" placeholder="{{alarmaTemp.[0]}}">          
+      </div>
+      <div class="input-group">
+        <label for="alarmaTempMin">Alarma Temperaturas altas</label>
+        <input class="controls" type="number" name="alarmaTempMax" id="alarmaTempMax" value="{{alarmaTemp.[1]}}" placeholder="{{alarmaTemp.[1]}}">          
+      </div>
+      <div class="input-group">
+        <label for="alarmaViento">Alarma Vientos Fuertes</label>
+        <input class="controls" type="number" name="alarmaViento" id="alarmaViento" value="{{alarmaViento}}" placeholder="{{alarmaViento}}">          
+      </div>
+      <div class="input-group">
+        <label for="alarmaHumedad">Alarma Humedad alta</label>
+        <input class="controls" type="number" name="alarmaHumedad" id="alarmaHumedad" value="{{alarmaHumedad}}" placeholder="{{alarmaHumedad}}">          
+      </div>
+      <div class="input-group">
+        <label for="email">Mail de avisos</label>
+        <input class="controls" type="email" name="email" id="email" value="{{email}}" placeholder="{{email}}">          
+      </div>
+      <div class="input-group">
+        <label for="horarioLumOn">Horario de encendido de luminaria</label>
+        <input class="controls" type="time" name="horarioLumOn" id="horarioLumOn" value="{{horarioLumOn}}" placeholder="{{horarioLumOn}}">          
+      </div>
+      <div class="input-group">
+        <label for="horarioLumOff">Horario de encendido de luminaria</label>
+        <input class="controls" type="time" name="horarioLumOff" id="horarioLumOff" value="{{horarioLumOff}}" placeholder="{{horarioLumOff}}">          
+      </div>
+      <div class="buttons_group">
+        <a href="/"><button type="button" class="buttons config-button" >Atrás</button></a>
+        <input class="buttons config-button" type="submit" name="" value="Ingresar">
+      </div>
+      </form>
+    
+        <div id="modal_container" class="modal-container">
+          <div id="modal_msj" class="modal">
+            <button id="close">Cerrar</button>
+          </div>
+        </div>
+
+    </section>
+
+    <script>
+
+      const form = document.querySelector('#configuracion');
+      const closeNode = document.querySelector("#close");
+      const modal = document.querySelector("#modal_container");
+      const msj_int =  document.createElement('p');
+        
+      form.addEventListener('submit', (event) =>{
+
+        event.stopPropagation();
+        event.preventDefault();
+        
+        let mensaje = 'Estacion Configurada correctamente';
+
+        const formData = new FormData(form);
+
+        console.log("hola")
+
+        fetch('/enviar-config',{
+          method : "POST",
+          body: formData
+        })
+        .catch((err)=>{
+          console.error(err)
+          mensaje = 'Error al intentar guardar configuración';
+        })
+        .then(()=>{
+          const button = document.querySelector("#close");
+          
+          const modal_msj = document.querySelector("#modal_msj");
+
+          msj_int.innerHTML = mensaje;
+          modal_msj.insertBefore(msj_int,button);
+          modal.classList.add("show");
+        })  
+      })
+
+      closeNode.addEventListener('click', ()=>{
+        modal.classList.remove("show")
+        msj_int.remove()
+      })     
+
+    </script>
