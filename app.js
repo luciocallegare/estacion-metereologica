@@ -6,12 +6,14 @@ const BAUDRATE = 9600
 const path = require('path') 
 const nodemailer = require("nodemailer");
 const exphbs = require('express-handlebars')
+var excel = require('excel4node');
 const PIN_TEMP = "A2"
 const PIN_VIENTO = "A1"
 const { MongoClient } = require('mongodb');
 const uri = "mongodb+srv://luciocallegare:GdeYsxhi8awC0UZ8@cluster0.7ggn1.mongodb.net/?retryWrites=true&w=majority";
 const multer = require('multer');
 const upload = multer();
+
 
 const client = new MongoClient(uri);
 
@@ -197,6 +199,12 @@ app.get('/login', (req,res)=>{
     res.render('login',params)
 })
 
+app.get('/logout', (req,res)=>{
+    let params
+    usuario = ''
+    res.render('login',params)
+})
+
 app.get('/datos',(req,res)=>{
     let data = {
         'temperatura':tempAct, 
@@ -281,3 +289,132 @@ app.post('/enviar-config',upload.none(), async(req,res)=>{
     }
     
 })
+
+
+app.get('/reporte', async(req,res)=>{
+
+    if (!usuario){
+        res.redirect('/login')
+    }
+    else {
+        
+        res.render('reporte')
+        
+    }
+})
+
+
+app.post('/generate-report',upload.none(), async(req,res)=>{
+
+    rep_param = req.body
+
+
+    //config.alarmaTemp = temps
+    console.log("Entrando");
+    
+
+    const registerCollection = client.db('estacionMetereologica').collection('registros')
+
+    //usuario = await usersCollection.findOne(req.body
+
+    //dbInterval = setInterval( registrar ,1000*60*parseInt(config.tiempoMuestrasMin))
+
+    //registros = await registerCollection.find( { registeredAt: { $gt: new Date('2022-06-10'), $lt: new Date('2022-06-12') } } )
+
+
+
+
+    let row = 2;
+    registros = registerCollection.find({
+        registeredAt: {
+            $gte: new Date('2022-06-10'),
+            $lt: new Date('2022-06-12')
+        }
+    }).toArray(function(err, result) {
+        if (err) throw err;
+
+        var workbook = new excel.Workbook();
+
+        // Add Worksheets to the workbook
+        var worksheet = workbook.addWorksheet('Valores');
+        var worksheet2 = workbook.addWorksheet('Sheet 2');
+        
+        // Create a reusable style
+        var st_temp = workbook.createStyle({
+            font: {
+                color: '#FF0800',
+                size: 12
+            },
+            numberFormat: '#,##0.00 °C; (#,##0.00 °C); -'
+        });
+        var st_style = workbook.createStyle({
+            font: {
+                color: '#FF0800',
+                size: 12
+            },
+            numberFormat: '#,##0.00 °C; (#,##0.00 °C); -'
+        });
+        var st_header = workbook.createStyle({
+            font: {
+                color: '#FF0800',
+                size: 14
+            },
+            numberFormat: '#,##0.00; (#,##0.00); -'
+        });
+        
+    
+        // Set value of cell A1 to 100 as a number type styled with paramaters of style
+        worksheet.cell(1,1).string('Fecha').style(st_header);
+        worksheet.cell(1,2).string('Temperatura').style(st_header);
+        worksheet.cell(1,3).string('Viento').style(st_header);
+        worksheet.cell(1,4).string('Humedad').style(st_header);
+        
+        result.forEach(element => {
+            worksheet.cell(row,1).string(element.registeredAt).style(st_style);
+            worksheet.cell(row,2).number(element.temperatura).style(st_temp);
+            worksheet.cell(row,3).number(element.viento).style(st_style);
+            worksheet.cell(row,4).number(element.humedad).style(st_style);
+            
+            row++;
+          });
+/*
+        // Set value of cell B1 to 300 as a number type styled with paramaters of style
+        
+
+        // Set value of cell C1 to a formula styled with paramaters of style
+        worksheet.cell(1,3).formula('A1 + B1').style(style);
+
+        // Set value of cell A2 to 'string' styled with paramaters of style
+        worksheet.cell(2,1).string('string').style(style);
+
+        // Set value of cell A3 to true as a boolean type styled with paramaters of style but with an adjustment to the font size.
+        worksheet.cell(3,1).bool(true).style(style).style({font: {size: 14}});
+*/
+        workbook.write('Excel.xlsx');
+
+
+      });
+      
+    //usuario = await usersCollection.findOne(req.body)
+
+    /*
+    if (usuario){
+        res.redirect('/')
+
+    try{
+        const data = await client.db('estacionMetereologica').collection('configuracion').updateOne({
+            'ide':'unico'
+            },
+            { $set:config },
+            { upsert:true }
+        ) 
+        console.log(data)
+        res.sendStatus(200)
+    }catch(err){
+        console.error(err)
+        res.sendStatus(500)
+    }
+    */
+    
+})
+

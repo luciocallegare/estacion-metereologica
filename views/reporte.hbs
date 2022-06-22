@@ -1,0 +1,90 @@
+    <section class="form-config">
+      <h5>Reporte</h5>
+
+      <form id="reporte" class="config-body">
+
+        Consultar y/o descargar en un Excel o PDF el registro adquirido en un lapso temporal
+        configurable por fecha y rango horario.
+
+        <div class="input-group">
+          <label for="fechaInicioReporte">Fecha inicio reporte:</label>
+          <input class="controls" type="number" id="fechaInicioReporte" name="fechaInicioReporte">
+        </div>
+
+        <div class="input-group">
+          <label for="horaInicioReporte">Hora inicio reporte:</label>
+          <input class="controls" type="number" id="horaInicioReporte" name="horaInicioReporte">
+        </div>
+
+        <div class="input-group">
+          <label for="fechaFinReporte">Fecha fin reporte:</label>
+          <input class="controls" type="number" id="fechaFinReporte" name="fechaFinReporte">
+        </div>
+
+        <div class="input-group">
+          <label for="fechaInicioReporte">Fecha inicio reporte:</label>
+          <input class="controls" type="number" id="fechaInicioReporte" name="fechaInicioReporte">
+        </div>
+
+      <div class="buttons_group">
+        <a href="/"><button type="button" class="buttons config-button" >Atrás</button></a>
+        <input class="buttons config-button" type="submit" name="" value="Ingresar">
+      </div>
+
+      </form>
+    
+        <div id="modal_container" class="modal-container">
+          <div id="modal_msj" class="modal">
+            <button id="close">Cerrar</button>
+          </div>
+        </div>
+
+    </section>
+
+    <script>
+
+      const form = document.querySelector('#reporte');
+      const closeNode = document.querySelector("#close");
+      const modal = document.querySelector("#modal_container");
+      const msj_int =  document.createElement('p');
+      
+
+      form.addEventListener('submit', (event) =>{
+
+        event.stopPropagation();
+        event.preventDefault();
+        
+        let mensaje = 'Estacion Configurada correctamente';
+
+        const formData = new FormData(form);
+
+        console.log("generate-report")
+
+        fetch('/generate-report',{
+          method : "POST",
+          body: formData
+        })
+
+        .catch((err)=>{
+          console.error(err)
+          mensaje = 'Error al intentar generar el reporte';
+        })
+        .then(()=>{
+          const button = document.querySelector("#close");
+          
+          const modal_msj = document.querySelector("#modal_msj");
+
+          msj_int.innerHTML = mensaje;
+          modal_msj.insertBefore(msj_int,button);
+          modal.classList.add("show");
+        })  
+      })
+
+      
+        
+      closeNode.addEventListener('click', ()=>{
+        modal.classList.remove("show")
+        msj_int.remove()
+      })     
+
+    </script>
