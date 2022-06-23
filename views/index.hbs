@@ -45,7 +45,13 @@
               svgheight="300"
               needle-color="#ff0000"
               background="#000">
-            </rockiot-ui>        
+            </rockiot-ui>  
+          {{#unless viento}}
+          <div class="disconnected">
+           <h3> Desconectado </h3>
+           <img class="disconnected_img" src="/public/desconectado.png" alt="desconectado">
+          </div>      
+          {{/unless}}
       </div>
       <div class="humedad">
           <h2>Humedad</h2>
@@ -56,11 +62,17 @@
               id="humedad"
               min="0"
               max="100"
-              value="10"
+              value="{{humedad}}"
               progress-color="#4ea5f1"
               bar-border-color="#000"
               name = "Humedad"
-            ></rockiot-ui>        
+            ></rockiot-ui>  
+            {{#unless humedad}}    
+              <div class="disconnected">
+              <h3> Desconectado </h3>
+              <img class="disconnected_img" src="/public/desconectado.png" alt="desconectado">
+              </div>  
+            {{/unless}}
       </div>
       <div class="temperatura">
           <h2>Temperatura</h2>
@@ -89,17 +101,24 @@
             needle-color="#ff8800"
             zones="#00ff00,#ff8800,#ff0000">
           </rockiot-ui>
+          {{#unless temperatura}}
+          <div class="disconnected">
+           <h3> Desconectado </h3>
+           <img class="disconnected_img" src="/public/desconectado.png" alt="desconectado">
+          </div>
+          {{/unless}}
       </div>
-
     </div>
 
-    <a href="/reporte" class="config">
-      <button  class="buttons">Generar Reporte</button>
-    </a>
-
-    <a href="/configuracion" class="config">
-      <button  class="buttons">Configuracion</button>
-    </a>
+    {{#ifCond usuario.tipo 'admin'}}
+      <a href="/configuracion" class="config">
+        <button  class="buttons">Configuracion</button>
+      </a>
+    {{else}}
+      <a href="/reporte" class="config">
+        <button  class="buttons">Generar Reporte</button>
+      </a>
+    {{/ifCond}}
 
     <a href="/logout" class="config">
       <button  class="buttons">Logout</button>

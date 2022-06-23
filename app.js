@@ -33,14 +33,15 @@ app.engine('.hbs', exphbs.engine({
     defaultLayout: 'main',
     layoutsDir: path.join(app.get('views'), 'layouts'),
     partialsDir: path.join(app.get('views'), 'partials'),
-    extname: '.hbs'
+    extname: '.hbs',
+    helpers: require('./helpers.js')
 }))
 
 app.set('view engine', '.hbs')
 
-let tempAct = 0
-let vientoAct = 0
-let humedadAct = 0
+let tempAct = null
+let vientoAct = null
+let humedadAct = null
 let data
 let usuario
 let valido = true
@@ -150,6 +151,10 @@ board.on("ready", async function() {
       sensorViento.on('change', function() {
         vientoAct =  this.scaleTo(0,100)
       }) 
+
+      /* five.Pin.read(pin, function(error, value) {
+        console.log(value);
+      }); hacer esto con los pines de los sensores */
   
       dbInterval = setInterval( registrar ,1000*60*parseInt(config.tiempoMuestrasMin))
   
@@ -174,13 +179,14 @@ app.get('/', (req, res, next) =>{
 
     let data = {
         'temperatura':tempAct, 
-        'viento':vientoAct
+        'viento':vientoAct,
+        'usuario': usuario
     }
 
     if (!usuario)
         res.redirect('/login')
     else
-        res.render('index')
+        res.render('index',data)
 })
 
 app.get('/login', (req,res)=>{
@@ -211,9 +217,10 @@ app.get('/style.css',(req,res)=>{
     res.sendFile(path.join(__dirname,'views/style.css'))
 } )
 
-app.get('/fondo-login', (req,res)=>{
-    res.sendFile(path.join(__dirname,'views/public/fondo_login.jpg'))
+app.get('/public/:file', (req,res)=>{
+    res.sendFile(path.join(__dirname,`views/public/${req.params.file}`))
 })
+
 
 app.get('/enviar-mail', async (req,res)=>{ 
     try {
@@ -250,7 +257,7 @@ app.get('/configuracion', async(req,res)=>{
         }
     
         if (usuario.tipo == 'user'){
-            res.send('Usar render configuracion de usuario')
+            res.send('Acceso denegado',404)
     }
     }
 })
