@@ -8,12 +8,24 @@ h1, h2{
     text-align: center;
 }
 
-  
+
   body {
     font-family: arial;
     background-image: url('/fondo-login');
   }
   
+  .column {
+    float: left;
+    width: 33.33%;
+  }
+  
+  /* Clear floats after the columns */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
   .form-login {
     width: 400px;
     height: 340px;
@@ -74,3 +86,6 @@ h1, h2{
   .form-login a:hover {
     text-decoration: underline;
   }
+
+
+  

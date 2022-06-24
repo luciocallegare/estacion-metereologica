@@ -12,6 +12,20 @@
         margin-right:4rem;
         text-align:center;
       }
+      .grid-container {
+      display: grid;
+      grid-template-columns: auto auto auto;
+      background-color: #2196F3;
+      padding: 10px;
+    }
+    .grid-item {
+      background-color: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      font-size: 30px;
+      text-align: center;
+    }
+
     </style>
     </script>
     <script src="https://unpkg.com/rockiot-ui@latest/build/rockiot.ui.min.js"></script>
@@ -21,6 +35,7 @@
     <script src="https://unpkg.com/rockiot-ui@latest/build/rockiot.gauge.radial.js"></script>
     <!-- charts -->
     <script src="https://unpkg.com/rockiot-ui@latest/build/rockiot.chart.js"></script>
+
   </head>
   <body style="min-height:100vh;width:100vw;margin:0;padding:0;background:#ffffff;background-size:cover;font-family:monospace">
       <div style="position:fixed;top:0;right:0;background:#222020;padding:.5rem;"><a style="color:#fafafa;text-decoration:none;" href="https://github.com/swina/rockiot-ui" target="_blank">GitHub</a></div>
@@ -141,7 +156,7 @@
                 scale="1"
                 smallscale="1"
                 ticks="5"
-                size="md"
+                size="sm"
                 radius="lg"
                 click-action="test"
                 text-color="#333"

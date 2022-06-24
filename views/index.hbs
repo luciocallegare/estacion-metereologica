@@ -4,82 +4,40 @@
        $.get('/datos', (d,s) =>{
          $('#termometro').attr('value',d.temperatura)
          $('#viento').attr('value', d.viento )
+         $('#header_date').attr('value', "fecha hora" )
          //$('humedad').attr('value', d.humedad)
+         
+         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+        
+         header_text = ''
+         const dt = new Date();
+         header_text += 'DATE: '+dt.getDate()+"/"+dt.getMonth()+"/"+dt.getFullYear();
+         header_text += ' - TIME: '+dt.getHours()+":"+dt.getMinutes();
+         header_text += '  '+days[dt.getDay()];
+        $('#header_date').text(header_text);
        })
       }, 100);
 
+      
+      
   </script> 
     <h1>Dashboard</h1>
-    <div class="dashboard_body">
 
-      <div class="viento">
-          <h2>Viento</h2>
-            <rockiot-ui
-              class="rockiot-element gauge_round_lg gauge_dark_gradient"
-              type="gauge"
-              variation="radial"
-              id="viento"
-              serial="radial_3"
-              name="Viento"
-              min="0"
-              max="100"
-              value="20"
-              units="km/h"
-              precision="2"
-              value-class="rockiot-radial-value-text"
-              value = {{viento}}
-              scale="1"
-              smallscale="1"
-              ticks="5"
-              size="md"
-              radius="lg"
-              click-action="test"
-              text-color="#333"
-              scale-text-color="#333"
-              bar-color="#00000060"
-              progress-color="#4ea5f1"
-              control-bg="none"
-              control-color="#888"
-              needle="1"
-              svgwidth="300"
-              svgheight="300"
-              needle-color="#ff0000"
-              background="#000">
-            </rockiot-ui>  
-          {{#unless viento}}
-          <div class="disconnected">
-           <h3> Desconectado </h3>
-           <img class="disconnected_img" src="/public/desconectado.png" alt="desconectado">
-          </div>      
-          {{/unless}}
+
+    <div class="grid-container" style="width:50%; heigth:50%;">
+      <div class="item1"> 
+        <div id="header_date">Aca iria el texto del header</div>
       </div>
-      <div class="humedad">
-          <h2>Humedad</h2>
-            <rockiot-ui
-              type="gauge"
-              variation="level"
-              serial="level_0"
-              id="humedad"
-              min="0"
-              max="100"
-              value="{{humedad}}"
-              progress-color="#4ea5f1"
-              bar-border-color="#000"
-              name = "Humedad"
-            ></rockiot-ui>  
-            {{#unless humedad}}    
-              <div class="disconnected">
-              <h3> Desconectado </h3>
-              <img class="disconnected_img" src="/public/desconectado.png" alt="desconectado">
-              </div>  
-            {{/unless}}
-      </div>
-      <div class="temperatura">
+
+      <div class="grid1">
+        <div class="temperatura">
           <h2>Temperatura</h2>
           <rockiot-ui
+          
             type="gauge"
             variation="linear"
-            orientation="horizontal"
+            orientation="vertical"
             id="termometro"
             serial="linear_3"
             min="0"
@@ -96,29 +54,98 @@
             control-bg="none"
             control-color="#888"
             scale="1"
+            size="sm"
             smallscale="1"
             needle="1"
+              svgwidth="150"
+              svgheight="150"
             needle-color="#ff8800"
             zones="#00ff00,#ff8800,#ff0000">
           </rockiot-ui>
-          {{#unless temperatura}}
-          <div class="disconnected">
-           <h3> Desconectado </h3>
-           <img class="disconnected_img" src="/public/desconectado.png" alt="desconectado">
-          </div>
-          {{/unless}}
-      </div>
+      </div></div>
+
+      <div class="grid2">
+        
+        
+        <div class="">
+
+          <h2>Viento</h2>
+            <rockiot-ui
+              type="gauge"
+              variation="radial"
+              id="viento"
+              serial="radial_3"
+              name="Viento"
+              min="0"
+              max="250"
+              value="20"
+              units="km/h"
+              precision="2"
+              value-class="rockiot-radial-value-text"
+              value = {{viento}}
+              scale="1"
+              smallscale="1"
+              ticks="5"
+              size="md"
+              radius="md"
+              click-action="test"
+              text-color="#333"
+              scale-text-color="#333"
+              bar-color="#00000060"
+              progress-color="#4ea5f1"
+              control-bg="none"
+              control-color="#888"
+              needle="1"
+              svgwidth="150"
+              svgheight="150"
+              needle-color="#ff0000"
+              background="#000">
+            </rockiot-ui>        
+      </div></div>
+      
+      <div class="grid2">
+        <div class="humedad">
+          <h2>Humedad</h2>
+            <rockiot-ui
+              type="gauge"
+              variation="level"
+              serial="level_0"
+              id="humedad"
+              min="0"
+              max="100"
+              value="10"
+              size="md"
+              svgwidth="150"
+              svgheight="150"
+              progress-color="#4ea5f1"
+              bar-border-color="#000"
+              name = "Humedad"
+            ></rockiot-ui>        
+      </div></div>
+      <div class="grid-item">4</div>
+      <div class="grid-item">5</div>
+      <div class="grid-item">6</div>
+      <div class="grid-item">7</div>
+      <div class="grid-item">8</div>
+      <div class="grid-item">9</div>
     </div>
 
-    {{#ifCond usuario.tipo 'admin'}}
-      <a href="/configuracion" class="config">
-        <button  class="buttons">Configuracion</button>
-      </a>
-    {{else}}
-      <a href="/reporte" class="config">
-        <button  class="buttons">Generar Reporte</button>
-      </a>
-    {{/ifCond}}
+
+    <div class="dashboard_body">
+
+      
+      
+      
+
+    </div>
+
+    <a href="/reporte" class="config">
+      <button  class="buttons">Generar Reporte</button>
+    </a>
+
+    <a href="/configuracion" class="config">
+      <button  class="buttons">Configuracion</button>
+    </a>
 
     <a href="/logout" class="config">
       <button  class="buttons">Logout</button>
