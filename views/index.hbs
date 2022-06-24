@@ -4,7 +4,7 @@
        $.get('/datos', (d,s) =>{
          $('#termometro').attr('value',d.temperatura)
          $('#viento').attr('value', d.viento )
-         $('#header_date').attr('value', "fecha hora" )
+         $('#digital_humedad').attr('value', '86' )
          //$('humedad').attr('value', d.humedad)
          
          const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -16,6 +16,7 @@
          header_text += ' - TIME: '+dt.getHours()+":"+dt.getMinutes();
          header_text += '  '+days[dt.getDay()];
         $('#header_date').text(header_text);
+        $('#digital_humedad').text('86%');
        })
       }, 100);
 
@@ -40,8 +41,8 @@
             orientation="vertical"
             id="termometro"
             serial="linear_3"
-            min="0"
-            max="40"
+            min="-10"
+            max="50"
             units="ºC"
             name = "Temperatura"
             value="{{temperatura}}"
@@ -96,8 +97,8 @@
               control-bg="none"
               control-color="#888"
               needle="1"
-              svgwidth="150"
-              svgheight="150"
+              svgwidth="200"
+              svgheight="200"
               needle-color="#ff0000"
               background="#000">
             </rockiot-ui>        
@@ -106,6 +107,7 @@
       <div class="grid2">
         <div class="humedad">
           <h2>Humedad</h2>
+          <h1 id="digital_humedad"></h1>
             <rockiot-ui
               type="gauge"
               variation="level"
@@ -113,7 +115,7 @@
               id="humedad"
               min="0"
               max="100"
-              value="10"
+              value="86"
               size="md"
               svgwidth="150"
               svgheight="150"
