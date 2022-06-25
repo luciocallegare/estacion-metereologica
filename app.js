@@ -178,6 +178,7 @@ app.get('/gauges-ejemplos', (req,res)=>{
 app.get('/', (req, res, next) =>{
 
     let data = {
+        'humedad':86,
         'temperatura':tempAct, 
         'viento':vientoAct,
         'usuario': usuario
@@ -208,7 +209,8 @@ app.get('/logout', (req,res)=>{
 app.get('/datos',(req,res)=>{
     let data = {
         'temperatura':tempAct, 
-        'viento':vientoAct
+        'viento':vientoAct,
+        'humedad':86
     }
     res.send(data) 
 })   

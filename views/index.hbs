@@ -2,14 +2,16 @@
 
       setInterval(function() {
        $.get('/datos', (d,s) =>{
+        console.log(d)
          $('#termometro').attr('value',d.temperatura)
          $('#viento').attr('value', d.viento )
          $('#digital_humedad').attr('value', '86' )
          //$('humedad').attr('value', d.humedad)
          
          const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
+         const seasson = ["summer", "autumn", "winter", "spring"];
         
+         humedad = 86;
          header_text = ''
          const dt = new Date();
          header_text += 'DATE: '+dt.getDate()+"/"+dt.getMonth()+"/"+dt.getFullYear();
@@ -17,23 +19,39 @@
          header_text += '  '+days[dt.getDay()];
         $('#header_date').text(header_text);
         $('#digital_humedad').text('86%');
-       })
-      }, 100);
 
-      
+        if  (d.temperatura > 15){
+          document.getElementById("img_temp").src="/public/temp_hot_1.jpg";
+        }else{
+          document.getElementById("img_temp").src="/public/temp_cold_1.jpg";
+        } 
+        
+        if  (d.viento < 15){
+          document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" width="50px">';
+        }else if  (d.viento < 35){
+          document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" width="50px"><img src="/public/wind_1.png" width="50px">';
+        }else{
+          document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" width="50px"><img src="/public/wind_1.png" width="50px"><img src="/public/wind_1.png" width="50px">';
+        } 
+
+        })
+      }, 300);
+
       
   </script> 
     <h1>Dashboard</h1>
 
 
     <div class="grid-container" style="width:50%; heigth:50%;">
-      <div class="item1"> 
+      <div class="item1 grid-item"> 
         <div id="header_date">Aca iria el texto del header</div>
       </div>
 
-      <div class="grid1">
+      <div class="grid1 grid-item">
         <div class="temperatura">
           <h2>Temperatura</h2>
+          <img id="img_temp" src="/public/temp_hot_1.jpg" width="60px">
+          <h1 id="digital_temperatura">{{temperatura}}°C</h1>
           <rockiot-ui
           
             type="gauge"
@@ -65,12 +83,78 @@
           </rockiot-ui>
       </div></div>
 
-      <div class="grid2">
+      <div id="grid_center" class="grid2">
         
         
-        <div class="">
+      </div>
+      
+      <div class="grid2 grid-item">
+        <div class="humedad">
+          <h2>Humedad </h2>
+          <img src="/public/humidity_1.png" width="60px">
+          <h1 id="digital_humedad"></h1>
+            <rockiot-ui 
+              id="gauge_humedad"
+              type="gauge"
+              variation="linear"
+              orientation="vertical"
+              serial="linear_4" 
+              name="Humedad" 
+              value="{{humedad}}" 
+              units="%" 
+              min="0" 
+              max="100" 
+              precision="2" 
+              animation="500" 
+              svgwidth="150" 
+              svgheight="150" 
+              text-color="#777" 
+              value-color="#444" 
+              value-bg="transparent" 
+              value-border="0px solid #fac83c" 
+              control-color="#333" 
+              control-bg="none" 
+              auto-test="1" 
+              orientation="vertical" 
+              size="sm" 
+              scale="0" 
+              smallscale="0" 
+              ticks="10" 
+              needle="0" 
+              bar-color="#fff" 
+              progress-color="#0000ff" 
+              scale-color="#aaa" 
+              scale-text-color="#111" 
+              needle-color="#0000FF" 
+              needle-stroke="#000" 
+              zones="" 
+              ></rockiot-ui>
+          
+            <!--<rockiot-ui
+              type="gauge"
+              variation="level"
+              serial="level_0"
+              id="humedad"
+              min="0"
+              max="100"
+              value="86"
+              size="sm"
+              svgwidth="100"
+              svgheight="100"
+              progress-color="#4ea5f1"
+              bar-border-color="#000"
+              name = "Humedad"
+            ></rockiot-ui>   -->    
+      </div></div>
+      <div class="grid-item">4</div>
+      <div class="grid-item"><div class="">
 
           <h2>Viento</h2>
+          <div id="wind_icon_container">
+
+          </div>
+          
+          <h1 id="digital_viento">{{viento}}Kts</h1>
             <rockiot-ui
               type="gauge"
               variation="radial"
@@ -97,35 +181,12 @@
               control-bg="none"
               control-color="#888"
               needle="1"
-              svgwidth="200"
-              svgheight="200"
+              svgwidth="150"
+              svgheight="150"
               needle-color="#ff0000"
               background="#000">
             </rockiot-ui>        
       </div></div>
-      
-      <div class="grid2">
-        <div class="humedad">
-          <h2>Humedad</h2>
-          <h1 id="digital_humedad"></h1>
-            <rockiot-ui
-              type="gauge"
-              variation="level"
-              serial="level_0"
-              id="humedad"
-              min="0"
-              max="100"
-              value="86"
-              size="md"
-              svgwidth="150"
-              svgheight="150"
-              progress-color="#4ea5f1"
-              bar-border-color="#000"
-              name = "Humedad"
-            ></rockiot-ui>        
-      </div></div>
-      <div class="grid-item">4</div>
-      <div class="grid-item">5</div>
       <div class="grid-item">6</div>
       <div class="grid-item">7</div>
       <div class="grid-item">8</div>
@@ -152,3 +213,23 @@
     <a href="/logout" class="config">
       <button  class="buttons">Logout</button>
     </a>
+
+<script type="text/javascript">
+  
+      
+        const dta = new Date();
+        //const dta = new Date(dt.getMonth()+"/"+dt.getDate()+"/"+dt.getFullYear());
+
+        var seasonArray = [
+            {name: 'Autumn', date: new Date(dta.getFullYear(),2,(dta.getFullYear() % 4 === 0) ? 19 : 20).getTime()},
+            {name: 'Winter', date: new Date(dta.getFullYear(),5,(dta.getFullYear() % 4 === 0) ? 20 : 21).getTime()},
+            {name: 'Spring', date: new Date(dta.getFullYear(),8,(dta.getFullYear() % 4 === 0) ? 22 : 23).getTime()},
+            {name: 'Summer', date: new Date(dta.getFullYear(),11,(dta.getFullYear() % 4 === 0) ? 20 : 21).getTime()}
+        ];
+
+        const season = seasonArray.filter(({ date }) => date <= dta).slice(-1)[0] || {name: "Winter"}
+        
+        document.getElementById('grid_center').className = "grid2 "+season.name;
+        
+
+</script>
