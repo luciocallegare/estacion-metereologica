@@ -14,7 +14,7 @@ const uri = "mongodb+srv://luciocallegare:GdeYsxhi8awC0UZ8@cluster0.7ggn1.mongod
 const multer = require('multer');
 const upload = multer();
 const {SerialPort} = require('serialport');
-
+const { DelimiterParser } = require('@serialport/parser-delimiter')
 
 const client = new MongoClient(uri);
 
@@ -26,7 +26,7 @@ const board =  new SerialPort({
     path: 'COM7',
     baudRate: 9600
   })  
-
+const parser = board.pipe(new DelimiterParser({ delimiter: '\n' }))
 const bodyParser = require('body-parser')
 
 
@@ -44,9 +44,6 @@ app.engine('.hbs', exphbs.engine({
 
 app.set('view engine', '.hbs')
 
-let tempAct = null
-let vientoAct = null
-let humedadAct = null
 let data
 let usuario
 let valido = true
@@ -58,6 +55,13 @@ const setSensors = async ()=>{
 
     if (config.tempState == 'on'){
         console.log('Prueba prendiendo sensor de temperatura')
+        
+        if (config.sensor_DHT_temp == 'off'){
+            board.write('DHTT(0)\n')
+        }else{
+            board.write('DHTT(1)\n')
+        }
+        await new Promise(resolve => setTimeout(resolve, 500));
         board.write('SETT(1)\n')
     }
 
@@ -66,6 +70,14 @@ const setSensors = async ()=>{
 
     if (config.humState == 'on'){
         console.log('Prueba prendiendo sensor de humedad')
+
+        if (config.sensor_DHT_hum == 'off'){
+            board.write('DHTH(0)\n')
+        }else{
+            board.write('DHTH(1)\n')
+        }
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         board.write('SETH(1)\n')
     }
 
@@ -73,7 +85,7 @@ const setSensors = async ()=>{
 
     if (config.vienState == 'on'){
       console.log('Prueba prendiendo sensor de viento')
-      board.write('SETH(1)\n')           
+      board.write('SETV(1)\n')           
     }
 }
 
@@ -172,34 +184,19 @@ try{
 
           setSensors()
 
-          board.on('data', (buffer)=>{
+          parser.on('data', (buffer)=>{
             try{
                 let bufferString = buffer.toString()
                 if (bufferString.indexOf("{") != -1){
                     //console.log(JSON.parse(bufferString))
                     data = JSON.parse(bufferString)
+
                 }
             }catch(err){
                 console.log(err)
             }
 
           })
-
-/*           var sensorTemp = new five.Sensor(PIN_TEMP);
-          var sensorViento = new five.Sensor(PIN_VIENTO) */
-          
-          // Scale the sensor's data from 0-1023 to 0-10 and log changes
-/*           sensorTemp.on("change", function() {
-             tempAct = this.scaleTo(0, 40);
-          });
-        
-          sensorViento.on('change', function() {
-            vientoAct =  this.scaleTo(0,100)
-          })  */
-    
-          /* five.Pin.read(pin, function(error, value) {
-            console.log(value);
-          }); hacer esto con los pines de los sensores */
       
           dbInterval = setInterval( registrar ,1000*60*parseInt(config.tiempoMuestrasMin))
       
@@ -257,11 +254,6 @@ app.get('/logout', (req,res)=>{
 })
 
 app.get('/datos',(req,res)=>{
-/*     let data = {
-        'temperatura':tempAct, 
-        'viento':vientoAct
-    } */
-    console.log(data)
     res.send(data) 
 })   
 
@@ -316,10 +308,25 @@ app.get('/configuracion', async(req,res)=>{
 
 app.post('/enviar-config',upload.none(), async(req,res)=>{
 
-    console.log(req.body)
     config = req.body
 
     const temps = [config.alarmaTempMax,config.alarmaTempMin]
+
+    config.funcTemp = {aTemp:config.aTemp,bTemp:config.bTemp,cTemp:config.cTemp}
+    config.funcHum = {aHum:config.aHum,bHum:config.bHum,cHum:config.cHum}
+    config.funcVien = {aVien:config.aVien,bVien:config.bVien,cVien:config.cVien}
+
+    delete config.aTemp
+    delete config.bTemp
+    delete config.CTemp
+
+    delete config.aHum
+    delete config.bHum
+    delete config.CHum
+
+    delete config.aVien
+    delete config.bVien
+    delete config.cVien
 
     config.alarmaTemp = temps
 
@@ -335,12 +342,20 @@ app.post('/enviar-config',upload.none(), async(req,res)=>{
         config.vienState = 'off'
     }
 
+    if (!config.sensor_DHT_temp){
+        config.sensor_DHT_temp = 'off'
+    }
+
+    if (!config.sensor_DHT_hum){
+        config.sensor_DHT_hum = 'off'
+    }
+
     clearInterval(dbInterval)
 
     dbInterval = setInterval( registrar ,1000*60*parseInt(config.tiempoMuestrasMin))
 
     setSensors()
-    
+
     try{
         const data = await client.db('estacionMetereologica').collection('configuracion').updateOne({
             'ide':'unico'

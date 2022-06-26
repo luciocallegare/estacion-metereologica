@@ -37,15 +37,53 @@
         <input class="controls" type="time" name="horarioLumOff" id="horarioLumOff" value="{{horarioLumOff}}" placeholder="{{horarioLumOff}}">          
       </div>
       <div class="input-group">
-        <label for="cantSensores">Sensores Activados:</label>
+        <label for="">Función de Transición de Temperatura</label>
+        <div class="input-group funciones">
+          <input class="inputFunciones" type="number" name="aTemp" id="aTemp" step=".01">
+          <label for="aTemp">X^2+</label>
+          <input class="inputFunciones" type="number" name="bTemp" id="bTemp" step=".01">
+          <label for="bTemp">X+</label>
+          <input class="inputFunciones" type="number" name="cTemp" id="cTemp" step=".01">
+          <div class="dht">
+            <input type="checkbox" name="sensor_DHT_temp" id="sensor_DHT_temp" value="on" onclick="changeStateTemp()">
+            <label id="dht_temp" for="sensor_DHT_temp">Activar DHT11</label>
+          </div>
+        </div>
+      </div>
+      <div class="input-group">
+        <label for="">Función de Transición de Humedad</label>
+        <div class="input-group funciones">
+          <input class="inputFunciones" type="number" name="aHum" id="aHum" step=".01">
+          <label for="aTemp">X^2+</label>
+          <input class="inputFunciones" type="number" name="bHum" id="bHum" step=".01">
+          <label for="bTemp">X+</label>
+          <input class="inputFunciones" type="number" name="cHum" id="cHum" step=".01">
+          <div class="dht">
+            <input type="checkbox" name="sensor_DHT_hum" id="sensor_DHT_hum" value="on" onclick="changeStateHum()">
+            <label id="dht_hum" for="sensor_DHT_hum">Activar DHT11</label>
+          </div>
+        </div>
+      </div>
+      <div class="input-group">
+        <label for="">Función de Transición de Viento</label>
+        <div class="input-group funciones">
+          <input class="inputFunciones" type="number" name="aVien" id="aVien" step=".01">
+          <label for="aTemp">X^2+</label>
+          <input class="inputFunciones" type="number" name="bVien" id="bVien" step=".01">
+          <label for="bTemp">X+</label>
+          <input class="inputFunciones" type="number" name="cVien" id="cVien" step=".01">
+        </div>
+      </div>
+      <div class="input-group">
+        <label for="inputs_sensores">Sensores Activados:</label>
 
         <div class="inputs_sensores">
           <input type="checkbox" id="tempState" name="tempState" value="on" {{#ifCond tempState 'on'}} checked  {{/ifCond}}>
-          <label for="vehicle1"> Temperatura </label><br>
+          <label for="tempState"> Temperatura </label><br>
           <input type="checkbox" id="humState" name="humState" value="on" {{#ifCond humState 'on'}} checked  {{/ifCond}}>
-          <label for="vehicle2"> Humedad </label><br>
+          <label for="humState"> Humedad </label><br>
           <input type="checkbox" id="vienState" name="vienState" value="on" {{#ifCond vienState 'on'}} checked  {{/ifCond}}>
-          <label for="vehicle3"> Viento </label>
+          <label for="vienState"> Viento </label>
         </div>
 
       </div>
@@ -69,6 +107,8 @@
       const closeNode = document.querySelector("#close");
       const modal = document.querySelector("#modal_container");
       const msj_int =  document.createElement('p');
+      const checkboxHum = document.getElementById('sensor_DHT_hum')
+      const checkboxTemp = document.getElementById('sensor_DHT_temp')
         
       form.addEventListener('submit', (event) =>{
 
@@ -104,5 +144,37 @@
         modal.classList.remove("show")
         msj_int.remove()
       })     
+      
+
+      function changeStateHum() {
+        var inputA = document.getElementById("aHum");
+        var inputB = document.getElementById("bHum");
+        var inputC = document.getElementById("cHum");
+        if (checkboxHum.checked == true){
+              inputA.setAttribute('disabled', 'disabled');
+              inputB.setAttribute('disabled', 'disabled');
+              inputC.setAttribute('disabled', 'disabled');
+        } else {
+            inputA.removeAttribute('disabled');
+            inputB.removeAttribute('disabled');
+            inputC.removeAttribute('disabled');
+        }
+      }
+
+      function changeStateTemp() {
+        var inputA = document.getElementById("aTemp");
+        var inputB = document.getElementById("bTemp");
+        var inputC = document.getElementById("cTemp");
+        if (checkboxTemp.checked == true){
+              inputA.setAttribute('disabled', 'disabled');
+              inputB.setAttribute('disabled', 'disabled');
+              inputC.setAttribute('disabled', 'disabled');
+        } else {
+            inputA.removeAttribute('disabled');
+            inputB.removeAttribute('disabled');
+            inputC.removeAttribute('disabled');
+        }
+      }      
+
 
     </script>
