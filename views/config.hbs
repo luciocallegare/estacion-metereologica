@@ -39,11 +39,11 @@
       <div class="input-group">
         <label for="">Función de Transición de Temperatura</label>
         <div class="input-group funciones">
-          <input class="inputFunciones" type="number" name="aTemp" id="aTemp" step=".01">
+          <input class="inputFunciones controls" type="number" name="aTemp" id="aTemp" step=".01" value="{{funcTemp.aTemp}}">
           <label for="aTemp">X^2+</label>
-          <input class="inputFunciones" type="number" name="bTemp" id="bTemp" step=".01">
+          <input class="inputFunciones controls" type="number" name="bTemp" id="bTemp" step=".01" value="{{funcTemp.bTemp}}">
           <label for="bTemp">X+</label>
-          <input class="inputFunciones" type="number" name="cTemp" id="cTemp" step=".01">
+          <input class="inputFunciones controls" type="number" name="cTemp" id="cTemp" step=".01" value="{{funcTemp.cTemp}}">
           <div class="dht">
             <input type="checkbox" name="sensor_DHT_temp" id="sensor_DHT_temp" value="on" onclick="changeStateTemp()">
             <label id="dht_temp" for="sensor_DHT_temp">Activar DHT11</label>
@@ -53,11 +53,11 @@
       <div class="input-group">
         <label for="">Función de Transición de Humedad</label>
         <div class="input-group funciones">
-          <input class="inputFunciones" type="number" name="aHum" id="aHum" step=".01">
+          <input class="inputFunciones controls" type="number" name="aHum" id="aHum" step=".01" value="{{funcHum.aHum}}">
           <label for="aTemp">X^2+</label>
-          <input class="inputFunciones" type="number" name="bHum" id="bHum" step=".01">
+          <input class="inputFunciones controls" type="number" name="bHum" id="bHum" step=".01" value="{{funcHum.bHum}}">
           <label for="bTemp">X+</label>
-          <input class="inputFunciones" type="number" name="cHum" id="cHum" step=".01">
+          <input class="inputFunciones controls" type="number" name="cHum" id="cHum" step=".01" value="{{funcHum.cHum}}">
           <div class="dht">
             <input type="checkbox" name="sensor_DHT_hum" id="sensor_DHT_hum" value="on" onclick="changeStateHum()">
             <label id="dht_hum" for="sensor_DHT_hum">Activar DHT11</label>
@@ -67,11 +67,11 @@
       <div class="input-group">
         <label for="">Función de Transición de Viento</label>
         <div class="input-group funciones">
-          <input class="inputFunciones" type="number" name="aVien" id="aVien" step=".01">
+          <input class="inputFunciones controls" type="number" name="aVien" id="aVien" step=".01" value="{{funcVien.aVien}}">
           <label for="aTemp">X^2+</label>
-          <input class="inputFunciones" type="number" name="bVien" id="bVien" step=".01">
+          <input class="inputFunciones controls" type="number" name="bVien" id="bVien" step=".01" value="{{funcVien.bVien}}">
           <label for="bTemp">X+</label>
-          <input class="inputFunciones" type="number" name="cVien" id="cVien" step=".01">
+          <input class="inputFunciones controls" type="number" name="cVien" id="cVien" step=".01" value="{{funcVien.cVien}}">
         </div>
       </div>
       <div class="input-group">

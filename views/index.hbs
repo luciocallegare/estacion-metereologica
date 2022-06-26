@@ -6,6 +6,7 @@
          $('#termometro').attr('value',d.temperatura)
          $('#viento').attr('value', d.viento )
          $('#digital_humedad').attr('value', d.humedad )
+         $('#digital_temperatura').attr('value', d.temperatura )
          $('#gauge_humedad').attr('value', d.humedad )
          
          const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -204,10 +205,13 @@
       <button  class="buttons">Generar Reporte</button>
     </a>
 
-    <a href="/configuracion" class="config">
-      <button  class="buttons">Configuracion</button>
-    </a>
+    {{#ifCond usuario.tipo "admin"}}
 
+      <a href="/configuracion" class="config">
+        <button  class="buttons">Configuracion</button>
+      </a>
+      
+    {{/ifCond}}
     <a href="/logout" class="config">
       <button  class="buttons">Logout</button>
     </a>
