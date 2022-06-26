@@ -4,7 +4,8 @@
        $.get('/datos', (d,s) =>{
          $('#termometro').attr('value',d.temperatura)
          $('#viento').attr('value', d.viento )
-         $('#digital_humedad').attr('value', '86' )
+         $('#digital_humedad').attr('value', d.humedad )
+         $('#humedad').attr('value', d.humedad )
          //$('humedad').attr('value', d.humedad)
          
          const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -16,7 +17,7 @@
          header_text += ' - TIME: '+dt.getHours()+":"+dt.getMinutes();
          header_text += '  '+days[dt.getDay()];
         $('#header_date').text(header_text);
-        $('#digital_humedad').text('86%');
+        $('#digital_humedad').text(d.humedad+'%');
        })
       }, 100);
 
@@ -79,7 +80,6 @@
               name="Viento"
               min="0"
               max="250"
-              value="20"
               units="km/h"
               precision="2"
               value-class="rockiot-radial-value-text"
@@ -115,7 +115,7 @@
               id="humedad"
               min="0"
               max="100"
-              value="86"
+              value={{humedad}}
               size="md"
               svgwidth="150"
               svgheight="150"

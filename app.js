@@ -13,14 +13,19 @@ const { MongoClient } = require('mongodb');
 const uri = "mongodb+srv://luciocallegare:GdeYsxhi8awC0UZ8@cluster0.7ggn1.mongodb.net/?retryWrites=true&w=majority";
 const multer = require('multer');
 const upload = multer();
+const {SerialPort} = require('serialport');
 
 
 const client = new MongoClient(uri);
 
-var five = require("johnny-five");
-const res = require('express/lib/response')
-var board = new five.Board();
+/* var five = require("johnny-five");
 
+var board = new five.Board();
+ */
+const board =  new SerialPort({
+    path: 'COM7',
+    baudRate: 9600
+  })  
 
 const bodyParser = require('body-parser')
 
@@ -47,6 +52,30 @@ let usuario
 let valido = true
 let config
 let dbInterval
+
+const setSensors = async ()=>{
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    if (config.tempState == 'on'){
+        console.log('Prueba prendiendo sensor de temperatura')
+        board.write('SETT(1)\n')
+    }
+
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    if (config.humState == 'on'){
+        console.log('Prueba prendiendo sensor de humedad')
+        board.write('SETH(1)\n')
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    if (config.vienState == 'on'){
+      console.log('Prueba prendiendo sensor de viento')
+      board.write('SETH(1)\n')           
+    }
+}
 
 const mailer = async () =>{
 
@@ -81,11 +110,12 @@ const mailer = async () =>{
 }
 
 const registrar = async () =>{
+
         
     const registro = {
-        temperatura: tempAct,
-        viento: vientoAct,
-        humedad: humedadAct,
+        temperatura: data.temperatura,
+        viento: data.viento,
+        humedad: data.humedad,
         registeredAt: new Date()
     }
 
@@ -123,46 +153,65 @@ const registrar = async () =>{
 
 
 //GdeYsxhi8awC0UZ8
-board.on("ready", async function() {
-  try {
-      await client.connect()
+try{
+    board.on("open", async function() {
+      try {
+          await client.connect()
+        
+          config = await client.db('estacionMetereologica').collection('configuracion').findOne({'ide':'unico'})
+          console.log("configuracion:",config)
+        
+        luminariaOn(config)
+          setInterval(()=>{
+              if (luminariaOn(config)){
+                board.write('SETL(1)\n')
+              }else{
+                board.write('SETL(0)\n')
+              }
+          },1000*10)
 
-      config = await client.db('estacionMetereologica').collection('configuracion').findOne({'ide':'unico'})
-      console.log("configuracion:",config)
-      var led = new five.Led(13);
-      
-    luminariaOn(config)
-      setInterval(()=>{
-          if (luminariaOn(config)){
-              led.on()
-          }else{
-              led.off()
-          }
-      },1000*10)
+          setSensors()
 
-      var sensorTemp = new five.Sensor(PIN_TEMP);
-      var sensorViento = new five.Sensor(PIN_VIENTO)
-      
-      // Scale the sensor's data from 0-1023 to 0-10 and log changes
-      sensorTemp.on("change", function() {
-         tempAct = this.scaleTo(0, 40);
-      });
+          board.on('data', (buffer)=>{
+            try{
+                let bufferString = buffer.toString()
+                if (bufferString.indexOf("{") != -1){
+                    //console.log(JSON.parse(bufferString))
+                    data = JSON.parse(bufferString)
+                }
+            }catch(err){
+                console.log(err)
+            }
+
+          })
+
+/*           var sensorTemp = new five.Sensor(PIN_TEMP);
+          var sensorViento = new five.Sensor(PIN_VIENTO) */
+          
+          // Scale the sensor's data from 0-1023 to 0-10 and log changes
+/*           sensorTemp.on("change", function() {
+             tempAct = this.scaleTo(0, 40);
+          });
+        
+          sensorViento.on('change', function() {
+            vientoAct =  this.scaleTo(0,100)
+          })  */
     
-      sensorViento.on('change', function() {
-        vientoAct =  this.scaleTo(0,100)
-      }) 
+          /* five.Pin.read(pin, function(error, value) {
+            console.log(value);
+          }); hacer esto con los pines de los sensores */
+      
+          dbInterval = setInterval( registrar ,1000*60*parseInt(config.tiempoMuestrasMin))
+      
+        }catch (err){
+          console.error(err)
+      }
+      
+    });
 
-      /* five.Pin.read(pin, function(error, value) {
-        console.log(value);
-      }); hacer esto con los pines de los sensores */
-  
-      dbInterval = setInterval( registrar ,1000*60*parseInt(config.tiempoMuestrasMin))
-  
-    }catch (err){
-      console.error(err)
-  }
-  
-});
+}catch (err){
+    console.error(err)
+}
 
 
 
@@ -177,11 +226,13 @@ app.get('/gauges-ejemplos', (req,res)=>{
 
 app.get('/', (req, res, next) =>{
 
-    let data = {
+/*     let data = {
         'temperatura':tempAct, 
         'viento':vientoAct,
         'usuario': usuario
-    }
+    } */
+
+    data.usuario = usuario
 
     if (!usuario)
         res.redirect('/login')
@@ -206,10 +257,11 @@ app.get('/logout', (req,res)=>{
 })
 
 app.get('/datos',(req,res)=>{
-    let data = {
+/*     let data = {
         'temperatura':tempAct, 
         'viento':vientoAct
-    }
+    } */
+    console.log(data)
     res.send(data) 
 })   
 
@@ -264,16 +316,31 @@ app.get('/configuracion', async(req,res)=>{
 
 app.post('/enviar-config',upload.none(), async(req,res)=>{
 
+    console.log(req.body)
     config = req.body
 
     const temps = [config.alarmaTempMax,config.alarmaTempMin]
 
     config.alarmaTemp = temps
 
+    if (!config.tempState){
+        config.tempState = 'off'
+    }
+
+    if (!config.humState){
+        config.humState = 'off'
+    }
+
+    if (!config.vienState){
+        config.vienState = 'off'
+    }
+
     clearInterval(dbInterval)
 
     dbInterval = setInterval( registrar ,1000*60*parseInt(config.tiempoMuestrasMin))
 
+    setSensors()
+    
     try{
         const data = await client.db('estacionMetereologica').collection('configuracion').updateOne({
             'ide':'unico'

@@ -4,12 +4,6 @@
       <form id="configuracion" class="config-body">
 
       <div class="input-group">
-        <label for="cantSensores">Cantidad de Sensores:</label>
-        <input class="controls" type="number" id="cantSensores" name="cantSensores" value="{{cantSensores}}" placeholder="{{cantSensores}}" >
-
-      </div>
-
-      <div class="input-group">
         <label for="tiempoMuestrasMin">Tiempo entre muestras</label>
         <input class="controls" type="number" id="tiempoMuestrasMin" name="tiempoMuestrasMin" value="{{tiempoMuestrasMin}}" placeholder="{{tiempoMuestrasMin}}">
           
@@ -41,6 +35,19 @@
       <div class="input-group">
         <label for="horarioLumOff">Horario de encendido de luminaria</label>
         <input class="controls" type="time" name="horarioLumOff" id="horarioLumOff" value="{{horarioLumOff}}" placeholder="{{horarioLumOff}}">          
+      </div>
+      <div class="input-group">
+        <label for="cantSensores">Sensores Activados:</label>
+
+        <div class="inputs_sensores">
+          <input type="checkbox" id="tempState" name="tempState" value="on" {{#ifCond tempState 'on'}} checked  {{/ifCond}}>
+          <label for="vehicle1"> Temperatura </label><br>
+          <input type="checkbox" id="humState" name="humState" value="on" {{#ifCond humState 'on'}} checked  {{/ifCond}}>
+          <label for="vehicle2"> Humedad </label><br>
+          <input type="checkbox" id="vienState" name="vienState" value="on" {{#ifCond vienState 'on'}} checked  {{/ifCond}}>
+          <label for="vehicle3"> Viento </label>
+        </div>
+
       </div>
       <div class="buttons_group">
         <a href="/"><button type="button" class="buttons config-button" >Atrás</button></a>
