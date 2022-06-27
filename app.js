@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const PORT = 8080
-const SERIAL_PATH = "COM4"
+const SERIAL_PATH = "COM7"
 const BAUDRATE = 9600
 const path = require('path') 
 const nodemailer = require("nodemailer");
@@ -15,6 +15,11 @@ const multer = require('multer');
 const upload = multer();
 const {SerialPort} = require('serialport');
 const { DelimiterParser } = require('@serialport/parser-delimiter')
+const webpush = require("web-push");
+const publicVapidKey="BIuk2jcnHJihbfXxRuW93KaMM2pg9A4CgR2SqlefGUcvcD7ZFJLz-wL9Dk3D_C7xpxK1j-_D3CcYhhrEbLel2Es"
+const privateVapidKey="5h3xNGAYssMWN9XgKElyNp453fwzIoIz38E_q4aP3rQ"
+
+
 
 const client = new MongoClient(uri);
 
@@ -23,11 +28,17 @@ const client = new MongoClient(uri);
 var board = new five.Board();
  */
 const board =  new SerialPort({
-    path: 'COM7',
-    baudRate: 9600
+    path: SERIAL_PATH,
+    baudRate: BAUDRATE
   })  
 const parser = board.pipe(new DelimiterParser({ delimiter: '\n' }))
 const bodyParser = require('body-parser')
+
+webpush.setVapidDetails(
+    "mailto:test@test.com",
+    publicVapidKey,
+    privateVapidKey
+);
 
 
 const urlencodedParser = bodyParser.urlencoded({ extended: true })
@@ -131,8 +142,8 @@ const registrar = async () =>{
         registeredAt: new Date()
     }
 
-    const data  = await client.db('estacionMetereologica').collection('registros').insertOne(registro)
-    console.log(data)
+    const dataWrite  = await client.db('estacionMetereologica').collection('registros').insertOne(registro)
+    console.log(dataWrite)
   }
 
 
@@ -163,6 +174,29 @@ const registrar = async () =>{
 
   }
 
+  const conversor = (funcConv, valor)=>{
+
+    const {aVal,bVal,cVal} = funcConv
+
+    if (aVal.length == 0 && bVal.length == 0 && cVal.length == 0){
+        return valor
+    }
+
+    if (aVal.length == 0){
+        aVal = 0
+    }
+
+    if (bVal.length == 0){
+        bVal = 0
+    }
+
+    if (cVal.length == 0){
+        cVal = 0
+    }
+
+    return (parseFloat(aVal)*(valor^2)+parseFloat(bVal)*valor+parseFloat(cVal)).toFixed(2)
+  }
+
 
 //GdeYsxhi8awC0UZ8
 try{
@@ -190,6 +224,16 @@ try{
                 if (bufferString.indexOf("{") != -1){
                     //console.log(JSON.parse(bufferString))
                     data = JSON.parse(bufferString)
+                    data.viento = conversor(config.funcVien,parseFloat(data.viento))
+
+                    if (config.sensor_DHT_temp == 'off'){
+                        data.temperatura = conversor(config.funcTemp,parseFloat(data.temperatura))
+                    }
+
+                    if (config.sensor_DHT_hum == 'off'){
+                        data.humedad = conversor(config.funcHum,parseFloat(data.humedad))
+
+                    }
 
                 }
             }catch(err){
@@ -264,6 +308,9 @@ app.get('/style.css',(req,res)=>{
 app.get('/public/:file', (req,res)=>{
     res.sendFile(path.join(__dirname,`views/public/${req.params.file}`))
 })
+app.get('/worker.js', (req,res)=>{
+    res.sendFile(path.join(__dirname,`views/worker.js`))
+})
 
 
 app.get('/enviar-mail', async (req,res)=>{ 
@@ -312,9 +359,9 @@ app.post('/enviar-config',upload.none(), async(req,res)=>{
 
     const temps = [config.alarmaTempMax,config.alarmaTempMin]
 
-    config.funcTemp = {aTemp:config.aTemp,bTemp:config.bTemp,cTemp:config.cTemp}
-    config.funcHum = {aHum:config.aHum,bHum:config.bHum,cHum:config.cHum}
-    config.funcVien = {aVien:config.aVien,bVien:config.bVien,cVien:config.cVien}
+    config.funcTemp = {aVal:config.aTemp, bVal:config.bTemp, cVal:config.cTemp}
+    config.funcHum = {aVal:config.aHum, bVal:config.bHum, cVal:config.cHum}
+    config.funcVien = {aVal:config.aVien, bVal:config.bVien, cVal:config.cVien}
 
     delete config.aTemp
     delete config.bTemp
@@ -522,4 +569,27 @@ app.post('/generate-report',upload.none(), async(req,res)=>{
     */
     
 })
+
+// Subscribe Route
+app.post("/subscribe", jsonParser, (req, res) => {
+    // Get pushSubscription object
+    const subscription = req.body;
+  
+    // Send 201 - resource created
+    res.status(201).json({});
+  
+    // Create payload
+    const payload = JSON.stringify({ 
+        title: "Alerta de Condiciones Extremas!",
+        rest:{
+            body: "Temperatura máxima alcanzada",
+            icon: path.join(__dirname,'/public/temp_hot_1.jpg')
+        }
+    });
+  
+    // Pass object into sendNotification
+    webpush
+      .sendNotification(subscription, payload)
+      .catch(err => console.error(err));
+  });
 

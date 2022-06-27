@@ -4,7 +4,7 @@
       <form id="configuracion" class="config-body">
 
       <div class="input-group">
-        <label for="tiempoMuestrasMin">Tiempo entre muestras</label>
+        <label for="tiempoMuestrasMin">Tiempo en minutos entre muestras</label>
         <input class="controls" type="number" id="tiempoMuestrasMin" name="tiempoMuestrasMin" value="{{tiempoMuestrasMin}}" placeholder="{{tiempoMuestrasMin}}">
           
       </div>
@@ -39,13 +39,13 @@
       <div class="input-group">
         <label for="">Función de Transición de Temperatura</label>
         <div class="input-group funciones">
-          <input class="inputFunciones controls" type="number" name="aTemp" id="aTemp" step=".01" value="{{funcTemp.aTemp}}">
-          <label for="aTemp">X^2+</label>
-          <input class="inputFunciones controls" type="number" name="bTemp" id="bTemp" step=".01" value="{{funcTemp.bTemp}}">
+          <input class="inputFunciones controls" type="number" name="aTemp" id="aTemp" step=".01" value="{{funcTemp.aVal}}" {{#ifCond sensor_DHT_temp 'on'}} disabled  {{/ifCond}}>
+          <label for="aTemp">X<sup>2</sup> +</label>
+          <input class="inputFunciones controls" type="number" name="bTemp" id="bTemp" step=".01" value="{{funcTemp.bVal}}" {{#ifCond sensor_DHT_temp 'on'}} disabled  {{/ifCond}}>
           <label for="bTemp">X+</label>
-          <input class="inputFunciones controls" type="number" name="cTemp" id="cTemp" step=".01" value="{{funcTemp.cTemp}}">
+          <input class="inputFunciones controls" type="number" name="cTemp" id="cTemp" step=".01" value="{{funcTemp.cVal}}" {{#ifCond sensor_DHT_temp 'on'}} disabled  {{/ifCond}}>
           <div class="dht">
-            <input type="checkbox" name="sensor_DHT_temp" id="sensor_DHT_temp" value="on" onclick="changeStateTemp()">
+            <input type="checkbox" name="sensor_DHT_temp" id="sensor_DHT_temp" value="on" onclick="changeStateTemp()" {{#ifCond sensor_DHT_temp 'on'}} checked  {{/ifCond}}>
             <label id="dht_temp" for="sensor_DHT_temp">Activar DHT11</label>
           </div>
         </div>
@@ -53,13 +53,13 @@
       <div class="input-group">
         <label for="">Función de Transición de Humedad</label>
         <div class="input-group funciones">
-          <input class="inputFunciones controls" type="number" name="aHum" id="aHum" step=".01" value="{{funcHum.aHum}}">
-          <label for="aTemp">X^2+</label>
-          <input class="inputFunciones controls" type="number" name="bHum" id="bHum" step=".01" value="{{funcHum.bHum}}">
+          <input class="inputFunciones controls" type="number" name="aHum" id="aHum" step=".01" value="{{funcHum.aVal}}" {{#ifCond sensor_DHT_hum 'on'}} disabled  {{/ifCond}}>
+          <label for="aTemp">X<sup>2</sup> +</label>
+          <input class="inputFunciones controls" type="number" name="bHum" id="bHum" step=".01" value="{{funcHum.bVal}}" {{#ifCond sensor_DHT_hum 'on'}} disabled {{/ifCond}}>
           <label for="bTemp">X+</label>
-          <input class="inputFunciones controls" type="number" name="cHum" id="cHum" step=".01" value="{{funcHum.cHum}}">
+          <input class="inputFunciones controls" type="number" name="cHum" id="cHum" step=".01" value="{{funcHum.cVal}}" {{#ifCond sensor_DHT_hum 'on'}} disabled  {{/ifCond}}>
           <div class="dht">
-            <input type="checkbox" name="sensor_DHT_hum" id="sensor_DHT_hum" value="on" onclick="changeStateHum()">
+            <input type="checkbox" name="sensor_DHT_hum" id="sensor_DHT_hum" value="on" onclick="changeStateHum()" {{#ifCond sensor_DHT_hum 'on'}} checked  {{/ifCond}}>
             <label id="dht_hum" for="sensor_DHT_hum">Activar DHT11</label>
           </div>
         </div>
@@ -67,11 +67,11 @@
       <div class="input-group">
         <label for="">Función de Transición de Viento</label>
         <div class="input-group funciones">
-          <input class="inputFunciones controls" type="number" name="aVien" id="aVien" step=".01" value="{{funcVien.aVien}}">
-          <label for="aTemp">X^2+</label>
-          <input class="inputFunciones controls" type="number" name="bVien" id="bVien" step=".01" value="{{funcVien.bVien}}">
+          <input class="inputFunciones controls" type="number" name="aVien" id="aVien" step=".01" value="{{funcVien.aVal}}">
+          <label for="aTemp">X<sup>2</sup> +</label>
+          <input class="inputFunciones controls" type="number" name="bVien" id="bVien" step=".01" value="{{funcVien.bVal}}">
           <label for="bTemp">X+</label>
-          <input class="inputFunciones controls" type="number" name="cVien" id="cVien" step=".01" value="{{funcVien.cVien}}">
+          <input class="inputFunciones controls" type="number" name="cVien" id="cVien" step=".01" value="{{funcVien.cVal}}">
         </div>
       </div>
       <div class="input-group">
