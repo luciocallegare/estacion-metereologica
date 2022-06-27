@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const PORT = 8080
-const SERIAL_PATH = "COM7"
+const SERIAL_PATH = "COM4"
 const BAUDRATE = 9600
 const path = require('path') 
 const nodemailer = require("nodemailer");
@@ -34,11 +34,6 @@ const board =  new SerialPort({
 const parser = board.pipe(new DelimiterParser({ delimiter: '\n' }))
 const bodyParser = require('body-parser')
 
-webpush.setVapidDetails(
-    "mailto:test@test.com",
-    publicVapidKey,
-    privateVapidKey
-);
 
 
 const urlencodedParser = bodyParser.urlencoded({ extended: true })
@@ -176,8 +171,8 @@ const registrar = async () =>{
 
   const conversor = (funcConv, valor)=>{
 
-    const {aVal,bVal,cVal} = funcConv
-
+    let {aVal,bVal,cVal} = funcConv
+    
     if (aVal.length == 0 && bVal.length == 0 && cVal.length == 0){
         return valor
     }
@@ -216,6 +211,11 @@ try{
               }
           },1000*10)
 
+          webpush.setVapidDetails(
+            "mailto:"+config.email,
+            publicVapidKey,
+            privateVapidKey
+        );
           setSensors()
 
           parser.on('data', (buffer)=>{
@@ -298,6 +298,9 @@ app.get('/logout', (req,res)=>{
 })
 
 app.get('/datos',(req,res)=>{
+    if (data){
+        data.config = config
+    }
     res.send(data) 
 })   
 
@@ -357,7 +360,7 @@ app.post('/enviar-config',upload.none(), async(req,res)=>{
 
     config = req.body
 
-    const temps = [config.alarmaTempMax,config.alarmaTempMin]
+    const temps = [config.alarmaTempMin,config.alarmaTempMax]
 
     config.funcTemp = {aVal:config.aTemp, bVal:config.bTemp, cVal:config.cTemp}
     config.funcHum = {aVal:config.aHum, bVal:config.bHum, cVal:config.cHum}
@@ -573,7 +576,8 @@ app.post('/generate-report',upload.none(), async(req,res)=>{
 // Subscribe Route
 app.post("/subscribe", jsonParser, (req, res) => {
     // Get pushSubscription object
-    const subscription = req.body;
+    const subscription = req.body.subscription;
+    console.log(subscription)
   
     // Send 201 - resource created
     res.status(201).json({});
@@ -581,10 +585,7 @@ app.post("/subscribe", jsonParser, (req, res) => {
     // Create payload
     const payload = JSON.stringify({ 
         title: "Alerta de Condiciones Extremas!",
-        rest:{
-            body: "Temperatura máxima alcanzada",
-            icon: path.join(__dirname,'/public/temp_hot_1.jpg')
-        }
+        rest:req.body.mensaje
     });
   
     // Pass object into sendNotification

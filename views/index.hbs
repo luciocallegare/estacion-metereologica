@@ -1,11 +1,14 @@
   <script type="text/javascript">
       
       const publicVapidKey="BIuk2jcnHJihbfXxRuW93KaMM2pg9A4CgR2SqlefGUcvcD7ZFJLz-wL9Dk3D_C7xpxK1j-_D3CcYhhrEbLel2Es"
+      let estadoAlarmaTempMax = true
+      let estadoAlarmaTempMin = true
+      let estadoAlarmaVien = true
+      let estadoAlarmaHum = true
 
-      if ("serviceWorker" in navigator) {
-        send().catch(err => console.error(err));
-      }
-      async function send() {
+
+
+      async function send(mensaje) {
         // Register Service Worker
         console.log("Registering service worker...");
         const register = await navigator.serviceWorker.register("/worker.js", {
@@ -21,11 +24,12 @@
         });
         console.log("Push Registered...");
 
+        const dataWebpush = { subscription,mensaje }
         // Send Push Notification
         console.log("Sending Push...");
         await fetch("/subscribe", {
           method: "POST",
-          body: JSON.stringify(subscription),
+          body: JSON.stringify(dataWebpush),
           headers: {
             "content-type": "application/json"
           }
@@ -68,6 +72,7 @@
         $('#header_date').text(header_text);
         $('#digital_humedad').text(d.humedad+'%');
         $('#digital_viento').text(d.viento+'Km/h');
+        $('#digital_temperatura').text(d.temperatura+'ºC')
         if  (d.temperatura > 15){
           document.getElementById("img_temp").src="/public/temp_hot_1.jpg";
         }else{
@@ -81,6 +86,55 @@
         }else{
           document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" width="50px"><img src="/public/wind_1.png" width="50px"><img src="/public/wind_1.png" width="50px">';
         } 
+
+
+
+        if ("serviceWorker" in navigator) {
+          console.log(d.config.alarmaTemp)
+
+          if (parseFloat(d.config.alarmaTemp[0]) > parseFloat(d.temperatura) && estadoAlarmaTempMax){
+            send({
+              body: "Temperatura minima alcanzada",
+              icon: '/public/temp_cold_1.jpg'            
+            }).catch(err => console.error(err));
+            estadoAlarmaTempMax = false
+          }else{
+            estadoAlarmaTempMax = (parseFloat(d.config.alarmaTemp[1]) < parseFloat(d.temperatura))
+          }
+
+          if (parseFloat(d.config.alarmaTemp[1]) < parseFloat(d.temperatura) && estadoAlarmaTempMin){
+            send({
+              body: "Temperatura máxima alcanzada",
+              icon: '/public/temp_hot_1.jpg'             
+            }).catch(err => console.error(err));
+            estadoAlarmaTempMin = false
+          }else{
+            estadoAlarmaTempMin = (parseFloat(d.config.alarmaTemp[1]) > parseFloat(d.temperatura))
+          }
+
+          if (parseFloat(d.config.alarmaHumedad) < parseFloat(d.humedad) && estadoAlarmaHum){
+            send({
+              body: "Humedad máxima alcanzada",
+              icon: '/public/humidity_icon.jpg'             
+            }).catch(err => console.error(err));
+            estadoAlarmaHum = false
+          }else{
+            estadoAlarmaHum = (parseFloat(d.config.alarmaHumedad) > parseFloat(d.humedad))
+          }
+
+          if (parseFloat(d.config.alarmaViento) < parseFloat(d.viento) && estadoAlarmaVien){
+
+            send({
+              body: "Velocidad de viento máxima alcanzada",
+              icon: '/public/wind.png'             
+            }).catch(err => console.error(err));
+            estadoAlarmaVien = false
+          }else{
+            estadoAlarmaVien = parseFloat(d.config.alarmaViento) > parseFloat(d.viento)
+          }
+
+        }
+
        })
 
       }, 300);
