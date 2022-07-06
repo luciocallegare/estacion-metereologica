@@ -1,10 +1,12 @@
 const express = require('express')
 const app = express()
 const PORT = 8080
-const SERIAL_PATH = "COM4"
+const SERIAL_PATH = "COM6"
 const BAUDRATE = 9600
 const path = require('path') 
 const nodemailer = require("nodemailer");
+require('dotenv').config();
+
 const exphbs = require('express-handlebars')
 var excel = require('excel4node');
 const PIN_TEMP = "A2"
@@ -24,7 +26,6 @@ const privateVapidKey="5h3xNGAYssMWN9XgKElyNp453fwzIoIz38E_q4aP3rQ"
 const client = new MongoClient(uri);
 
 /* var five = require("johnny-five");
-
 var board = new five.Board();
  */
 const board =  new SerialPort({
@@ -99,31 +100,42 @@ const mailer = async () =>{
 
     const testAccount = await nodemailer.createTestAccount();
 
+    console.log(data)
+
     const transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false, // true for 465, false for other ports
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
         auth: {
-          user: testAccount.user, // generated ethereal user
-          pass: testAccount.pass, // generated ethereal password
+          user: process.env.EMAIL_USERNAME,
+          pass: process.env.EMAIL_PASSWORD,
         },
-      });
+        tls: {
+            // do not fail on invalid certs
+            rejectUnauthorized: false
+        },
+     });
 
-    // send mail with defined transport object
-
-    try {
-        await transporter.sendMail({
-            from: '"Fred Foo 👻" <luciocallegare@gmail.com>', // sender address
-            to: "luciocallegare@gmail.com", // list of receivers
-            subject: "Hello ✔", // Subject line
-            text: "Hello world?", // plain text body
-            html: "<b>Hello world?</b>", // html body
-        });
-        
-
-    }catch (err){
-        throw err
-    }
+      const html_text =  `<b>ALERTA de condiciones extremas!!</b><br><br> <font size="24">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2426/2426702.png" width="50" heigth="50">  Temperatura: <b>${data.temperatura}°C</b>
+                        <br><img src="https://cdn-icons-png.flaticon.com/512/219/219816.png" width="50" heigth="50">  humedad: <b>${data.humedad}%</b>
+                        <br><img src="https://cdn-icons-png.flaticon.com/512/481/481476.png" width="50" heigth="50">  viento: <b>${data.viento}Kts</b>
+                        </font>`
+      const mailOptions = {
+        from: process.env.EMAIL_USERNAME, // Sender address
+        to: 'javiervaamondedev@gmail.com', // List of recipients
+        subject: 'ALERTA - Estacion Meteorologica', // Subject line
+        //text: 'Hello People!, Welcome to Bacancy!', // Plain text body
+        html: html_text,
+    };
+    
+    transporter.sendMail(mailOptions, function(err, info) {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log(info);
+        }
+    });
 
 }
 
@@ -267,12 +279,6 @@ app.get('/gauges-ejemplos', (req,res)=>{
 
 app.get('/', (req, res, next) =>{
 
-/*     let data = {
-        'temperatura':tempAct, 
-        'viento':vientoAct,
-        'usuario': usuario
-    } */
-
     data.usuario = usuario
 
     if (!usuario)
@@ -319,7 +325,8 @@ app.get('/worker.js', (req,res)=>{
 app.get('/enviar-mail', async (req,res)=>{ 
     try {
         await mailer()
-        res.send('mail enviado')
+        //res.send('mail enviado')
+        res.redirect('/')
     } catch (err){
         console.log(err)
         res.send(err)
@@ -531,45 +538,9 @@ app.post('/generate-report',upload.none(), async(req,res)=>{
             row++;
           }
         );
-
-/*
-        // Set value of cell B1 to 300 as a number type styled with paramaters of style
-        
-
-        // Set value of cell C1 to a formula styled with paramaters of style
-        worksheet.cell(1,3).formula('A1 + B1').style(style);
-
-        // Set value of cell A2 to 'string' styled with paramaters of style
-        worksheet.cell(2,1).string('string').style(style);
-
-        // Set value of cell A3 to true as a boolean type styled with paramaters of style but with an adjustment to the font size.
-        worksheet.cell(3,1).bool(true).style(style).style({font: {size: 14}});
-*/
         workbook.write('Excel.xlsx');
 
-
       });
-      
-    //usuario = await usersCollection.findOne(req.body)
-
-    /*
-    if (usuario){
-        res.redirect('/')
-
-    try{
-        const data = await client.db('estacionMetereologica').collection('configuracion').updateOne({
-            'ide':'unico'
-            },
-            { $set:config },
-            { upsert:true }
-        ) 
-        console.log(data)
-        res.sendStatus(200)
-    }catch(err){
-        console.error(err)
-        res.sendStatus(500)
-    }
-    */
     
 })
 
@@ -593,4 +564,3 @@ app.post("/subscribe", jsonParser, (req, res) => {
       .sendNotification(subscription, payload)
       .catch(err => console.error(err));
   });
-

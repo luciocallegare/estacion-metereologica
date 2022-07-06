@@ -69,6 +69,8 @@
          header_text += 'DATE: '+dt.getDate()+"/"+dt.getMonth()+"/"+dt.getFullYear();
          header_text += ' - TIME: '+dt.getHours()+":"+dt.getMinutes();
          header_text += '  '+days[dt.getDay()];
+
+         header_text += ' USER: {{usuario.username}} ({{usuario.tipo}})';
         $('#header_date').text(header_text);
         $('#digital_humedad').text(d.humedad+'%');
         $('#digital_viento').text(d.viento+'Km/h');
@@ -309,6 +311,10 @@
 
     {{#ifCond usuario.tipo "admin"}}
 
+    <a href="/enviar-mail" class="config">
+      <button  class="buttons">Enviar Mail</button>
+    </a>
+    
       <a href="/configuracion" class="config">
         <button  class="buttons">Configuracion</button>
       </a>
