@@ -40,6 +40,8 @@ const bodyParser = require('body-parser')
 const urlencodedParser = bodyParser.urlencoded({ extended: true })
 const jsonParser = bodyParser.json()
 
+let tempHumSensorStatus = true
+
 app.set('views',path.join(__dirname, 'views'))
 app.engine('.hbs', exphbs.engine({
     defaultLayout: 'main',
@@ -137,7 +139,20 @@ const mailer = async (titulo) =>{
 
 }
 
+const checkSensor = async () =>{
 
+    if(tempHumSensorStatus && data.temperatura == 0 && data.humedad == 0){
+        console.log("Probable mal funcionamiento o desconexion de sensor temperatura/humedad")
+        await mailer("Probable error de Sensor Temperatura/Humedad")
+        tempHumSensorStatus = false
+    }else if(!tempHumSensorStatus && (data.temperatura != 0 || data.humedad != 0)){
+        console.log("Sensor vuelve a funcionamiento")
+        await mailer("Sensor Temperatura/Humedad vuelve a funcionar")
+        tempHumSensorStatus = true
+    }
+
+
+}
 const registrar = async () =>{
 
         
@@ -148,24 +163,37 @@ const registrar = async () =>{
         registeredAt: new Date()
     }
 
-    console.log("registrando")
-    console.log(config)
+    if(config.tempState == 'on'){
+        if(data.temperatura < config.alarmaTempMin){
+            await mailer("Alarma de temperatura Minima")
+        }
+        if(data.temperatura > config.alarmaTempMax){
+            await mailer("Alarma de temperatura Maxima")
+        }
+    }else{
+        registro.temperatura = -99
+    }
+    
+    if(config.humState == 'on'){
+        if(data.humedad > config.alarmaHumedad){
+            await mailer("Alarma de Humedad Maxima")
+        }
+    }else{
+        registro.humedad = -99
+    }
 
-    if(data.temperatura < config.alarmaTempMin){
-        await mailer("Alarma de temperatura Minima")
-    }
-    if(data.temperatura > config.alarmaTempMax){
-        await mailer("Alarma de temperatura Maxima")
-    }
-    if(data.humedad > config.alarmaHumedad){
-        //await mailer("Alarma de Humedad Maxima")
-    }
-    if(data.viento > config.alarmaViento){
-        await mailer("Alarma de Viento")
+    if(config.vienState == 'on'){
+        if(data.viento > config.alarmaViento){
+            await mailer("Alarma de Viento")
+        }
+    }else{
+        registro.viento = -99
     }
 
+    checkSensor()
+    
     const dataWrite  = await client.db('estacionMetereologica').collection('registros').insertOne(registro)
-    console.log(dataWrite)
+    
   }
 
 
@@ -248,6 +276,7 @@ try{
           parser.on('data', (buffer)=>{
             try{
                 let bufferString = buffer.toString()
+
                 if (bufferString.indexOf("{") != -1){
                     //console.log(JSON.parse(bufferString))
                     data = JSON.parse(bufferString)
@@ -259,8 +288,8 @@ try{
 
                     if (config.sensor_DHT_hum == 'off'){
                         data.humedad = conversor(config.funcHum,parseFloat(data.humedad))
-
                     }
+
 
                 }
             }catch(err){
