@@ -64,33 +64,49 @@
          const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
          const seasson = ["summer", "autumn", "winter", "spring"];
         
-         header_text = ''
+         
          const dt = new Date();
-         header_text += 'DATE: '+dt.getDate()+"/"+dt.getMonth()+"/"+dt.getFullYear();
-         header_text += ' - TIME: '+dt.getHours()+":"+dt.getMinutes();
-         header_text += '  '+days[dt.getDay()];
+         header_text = `<p>DATE: ${dt.getDate()}/${dt.getMonth()}/${dt.getFullYear()};
+                         - TIME: ${dt.getHours()}:${dt.getMinutes()};
+                         ${days[dt.getDay()]}</p>`;
 
-         header_text += ' USER: {{usuario.username}} ({{usuario.tipo}})';
-        $('#header_date').text(header_text);
-        $('#digital_humedad').text(d.humedad+'%');
-        $('#digital_viento').text(d.viento+'Km/h');
-        $('#digital_temperatura').text(d.temperatura+'ºC')
-        if  (d.temperatura > 15){
-          document.getElementById("img_temp").src="/public/temp_hot_1.jpg";
+         header_text += `<p>USER: {{usuario.username}} ({{usuario.tipo}}) <a href="/logout">Logout</a></p>`;
+         
+
+
+        $('#header_date').html(header_text);
+
+        if(d.config.humState == 'on'){
+          $('#digital_humedad').text(d.humedad+'%');
         }else{
-          document.getElementById("img_temp").src="/public/temp_cold_1.jpg";
-        } 
+          $('#digital_humedad').text('OFF');
+        }
         
-        if  (d.viento < 15){
-          document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" width="50px">';
-        }else if  (d.viento < 35){
-          document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" width="50px"><img src="/public/wind_1.png" width="50px">';
+        if(d.config.tempState == 'on'){
+          $('#digital_temperatura').text(d.temperatura+'ºC')
+          if  (d.temperatura > 15){
+            document.getElementById("img_temp").src="/public/temp_hot_1.jpg";
+          }else{
+            document.getElementById("img_temp").src="/public/temp_cold_1.jpg";
+          } 
         }else{
-          document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" width="50px"><img src="/public/wind_1.png" width="50px"><img src="/public/wind_1.png" width="50px">';
-        } 
+          $('#digital_temperatura').text('OFF');
+        }
 
+        if(d.config.vienState == 'on'){
+          $('#digital_viento').text(d.viento+'Km/h');
+          if  (d.viento < 15){
+            document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" width="50px">';
+          }else if  (d.viento < 35){
+            document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" width="50px"><img src="/public/wind_1.png" width="50px">';
+          }else{
+            document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" width="50px"><img src="/public/wind_1.png" width="50px"><img src="/public/wind_1.png" width="50px">';
+          } 
+        }else{
+          $('#digital_viento').text('OFF');
+        }
 
-
+        console.log(d.config);
         if ("serviceWorker" in navigator) {
           console.log(d.config.alarmaTemp)
 
@@ -143,7 +159,7 @@
 
       
   </script> 
-    <h1>Dashboard</h1>
+    <h1>Central Meteorologica</h1>
 
 
     <div class="grid-container" style="width:50%; heigth:50%;">
@@ -152,10 +168,10 @@
       </div>
 
       <div class="grid1 grid-item">
-        <div class="temperatura">
+        <div class="temperatura" id="temp1">
           <h2>Temperatura</h2>
           <img id="img_temp" src="/public/temp_hot_1.jpg" width="60px">
-          <h2 id="digital_temperatura">{{temperatura}}°C</h2>
+          <h2 id="digital_temperatura">{{data.temperatura}}°C</h2>
           <rockiot-ui
           
             type="gauge"
@@ -258,7 +274,7 @@
 
           </div>
           
-          <h2 id="digital_viento">{{viento}}Km/h</h2>
+          <h2 id="digital_viento" style="width:220px;">{{viento}}Km/h</h2>
             <rockiot-ui
               type="gauge"
               variation="radial"
@@ -290,39 +306,39 @@
               background="#000">
             </rockiot-ui>        
       </div></div>
-      <div class="grid-item">6</div>
-      <div class="grid-item">7</div>
+
+      
+      <div class="grid-item">
+        <a href="/reporte">
+          <button class="buttons">Generar Reporte</button>
+        </a>
+
+        {{#ifCond usuario.tipo "admin"}}
+
+        <a href="/configuracion">
+          <button  class="buttons">Configuracion</button>
+        </a>
+        {{/ifCond}}
+      </div>
+      <!--<div class="grid-item">7</div>
       <div class="grid-item">8</div>
-      <div class="grid-item">9</div>
+      <div class="grid-item">9</div>-->
     </div>
 
 
     <div class="dashboard_body">
 
-      
-      
-      
-
     </div>
 
-    <a href="/reporte" class="config">
-      <button  class="buttons">Generar Reporte</button>
-    </a>
 
-    {{#ifCond usuario.tipo "admin"}}
-
-    <a href="/enviar-mail" class="config">
+    <!--<a href="/enviar-mail" class="config">
       <button  class="buttons">Enviar Mail</button>
     </a>
     
-      <a href="/configuracion" class="config">
-        <button  class="buttons">Configuracion</button>
-      </a>
-
-    {{/ifCond}}
+      
     <a href="/logout" class="config">
       <button  class="buttons">Logout</button>
-    </a>
+    </a>-->
 
 <script type="text/javascript">
   

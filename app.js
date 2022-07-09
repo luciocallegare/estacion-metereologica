@@ -96,11 +96,9 @@ const setSensors = async ()=>{
     }
 }
 
-const mailer = async () =>{
+const mailer = async (titulo) =>{
 
     const testAccount = await nodemailer.createTestAccount();
-
-    console.log(data)
 
     const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
@@ -123,8 +121,8 @@ const mailer = async () =>{
                         </font>`
       const mailOptions = {
         from: process.env.EMAIL_USERNAME, // Sender address
-        to: 'javiervaamondedev@gmail.com', // List of recipients
-        subject: 'ALERTA - Estacion Meteorologica', // Subject line
+        to: config.email, // List of recipients
+        subject: `ALERTA - Estacion Meteorologica - ${titulo}`, // Subject line
         //text: 'Hello People!, Welcome to Bacancy!', // Plain text body
         html: html_text,
     };
@@ -139,6 +137,7 @@ const mailer = async () =>{
 
 }
 
+
 const registrar = async () =>{
 
         
@@ -147,6 +146,22 @@ const registrar = async () =>{
         viento: data.viento,
         humedad: data.humedad,
         registeredAt: new Date()
+    }
+
+    console.log("registrando")
+    console.log(config)
+
+    if(data.temperatura < config.alarmaTempMin){
+        await mailer("Alarma de temperatura Minima")
+    }
+    if(data.temperatura > config.alarmaTempMax){
+        await mailer("Alarma de temperatura Maxima")
+    }
+    if(data.humedad > config.alarmaHumedad){
+        //await mailer("Alarma de Humedad Maxima")
+    }
+    if(data.viento > config.alarmaViento){
+        await mailer("Alarma de Viento")
     }
 
     const dataWrite  = await client.db('estacionMetereologica').collection('registros').insertOne(registro)
@@ -254,6 +269,7 @@ try{
 
           })
       
+          //dbInterval = setInterval( registrar ,30000)
           dbInterval = setInterval( registrar ,1000*60*parseInt(config.tiempoMuestrasMin))
       
         }catch (err){
@@ -280,7 +296,6 @@ app.get('/gauges-ejemplos', (req,res)=>{
 app.get('/', (req, res, next) =>{
 
     data.usuario = usuario
-
     if (!usuario)
         res.redirect('/login')
     else
