@@ -28,6 +28,7 @@
 
             h1, h2{
                 text-align: center;
+                margin:10px;
             }
 
             html { 
@@ -87,7 +88,7 @@
             
             .buttons {
                 width: 100%;
-                height: 40px;
+                height: 30px;
                 background: #017bab;
                 border: none;
                 color: white;
@@ -220,13 +221,18 @@
 
             .grid-container {
             display: grid;
-            grid-template-areas:
+            /*grid-template-areas:
                 'header header header'
                 'temp main main'
-                'temp main main';
+                'temp main main';*/
+            grid-template-areas:
+                'header header header opciones'
+                'temp humedad viento season'
+                'temp humedad presion season';
+                /*'opciones opciones opciones opciones';*/
             /*grid-template-columns: auto auto auto;*/
             background-color: #000000;
-            padding: 10px;
+            padding: 5px;
             vertical-align: middle;
             flex: 1;
             color:#fff;
@@ -243,9 +249,13 @@
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.8);
             }
-            .item1 { grid-area: header; }
-            .item2 { grid-area: temp; }
-            .item3 { grid-area: main; }
+            .grd_header { grid-area: header; }
+            .grd_temperatura { grid-area: temp; }
+            .grd_humedad { grid-area: humedad; }
+            .grd_viento { grid-area: viento; }
+            .grd_presion { grid-area: presion; }
+            .grd_season { grid-area: season; }
+            .grd_opciones { grid-area: opciones; }
 
             .disconnected_img{
                 width: 290px;
@@ -290,6 +300,11 @@
                 background-size: contain;
                 background-repeat:no-repeat;
                 
+            }
+            .pression_icon{
+                background-image: url('/public/presion_icon.png');
+                background-size: contain;
+                background-repeat:no-repeat;
             }
 
             .funciones{
