@@ -96,15 +96,17 @@
         if(d.config.vienState == 'on'){
           $('#digital_viento').text(d.viento+'Km/h');
           if  (d.viento < 15){
-            document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" width="50px">';
+            document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" heigth="50px">';
           }else if  (d.viento < 35){
-            document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" width="50px"><img src="/public/wind_1.png" width="50px">';
+            document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" height="50px"><img src="/public/wind_1.png" height="50px">';
           }else{
-            document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" width="50px"><img src="/public/wind_1.png" width="50px"><img src="/public/wind_1.png" width="50px">';
+            document.getElementById("wind_icon_container").innerHTML='<img src="/public/wind_1.png" height="50px"><img src="/public/wind_1.png" height="50px"><img src="/public/wind_1.png" height="50px">';
           } 
         }else{
           $('#digital_viento').text('OFF');
         }
+
+        document.getElementById("presion_icon_container").innerHTML='<img src="/public/presion_icon.png" height="50px">';
 
         console.log(d.config);
         if ("serviceWorker" in navigator) {
@@ -159,18 +161,15 @@
 
       
   </script> 
-    <h1>Central Meteorologica</h1>
-
-
-    <div class="grid-container" style="width:50%; heigth:50%;">
-      <div class="item1 grid-item"> 
+    <div class="grid-container" style="width:70%; heigth:50%;">
+      <div class="grd_header grid-item"> 
         <div id="header_date">Aca iria el texto del header</div>
       </div>
 
-      <div class="grid1 grid-item">
+      <div class="grd_temperatura grid-item">
         <div class="temperatura" id="temp1">
           <h2>Temperatura</h2>
-          <img id="img_temp" src="/public/temp_hot_1.jpg" width="60px">
+          <img id="img_temp" src="/public/temp_hot_1.jpg" height="50px">
           <h2 id="digital_temperatura">{{data.temperatura}}°C</h2>
           <rockiot-ui
           
@@ -203,15 +202,14 @@
           </rockiot-ui>
       </div></div>
 
-      <div id="grid_center" class="grid2">
-        
+      <div id="grid_season" class="grd_season grid-item">
         
       </div>
       
-      <div class="grid2 grid-item">
+      <div class="grd_humedad grid-item">
         <div class="humedad">
           <h2>Humedad </h2>
-          <img src="/public/humidity_1.png" width="60px">
+          <img src="/public/humidity_1.png" height="50px">
           <h2 id="digital_humedad"></h2>
             <rockiot-ui 
               id="gauge_humedad"
@@ -266,16 +264,14 @@
               name = "Humedad"
             ></rockiot-ui>   -->    
       </div></div>
-      <div class="grid-item">4</div>
-      <div class="grid-item"><div class="">
+      <div class="grd_viento grid-item">
 
           <h2>Viento</h2>
           <div id="wind_icon_container">
-
           </div>
           
           <h2 id="digital_viento" style="width:220px;">{{viento}}Km/h</h2>
-            <rockiot-ui
+            <rockiot-ui 
               type="gauge"
               variation="radial"
               id="viento"
@@ -305,10 +301,53 @@
               needle-color="#ff0000"
               background="#000">
             </rockiot-ui>        
-      </div></div>
-
+      </div>
+      <div class="grid-item grd_presion">
+        <h2>Presion</h2>
+          <div id="presion_icon_container">
+          </div>
+          <h2 id="digital_presion" style="width:220px;">1010HPa</h2>
+        <rockiot-ui 
+          id="radial_base_presion"
+          type="gauge"
+          variation="radial"
+          orientation="vertical"
+          serial="radial_base" 
+          name="nm_presion" 
+          value="1010" 
+          units="%" 
+          min="700" 
+          max="1100" 
+          precision="1" 
+          animation="500" 
+          svgwidth="100" 
+          svgheight="100" 
+          text-color="#777" 
+          value-color="#777" 
+          value-bg="transparent" 
+          value-border="0px solid #fac83c" 
+          control-color="#000000" 
+          control-bg="none" 
+          auto-test="1" 
+          startangle="135" 
+          endangle="45" 
+          radius="lg" 
+          size="lg" 
+          scale="0" 
+          smallscale="0" 
+          ticks="10" 
+          needle="0" 
+          bar-color="#444" 
+          progress-color="#00ff00" 
+          scale-color="#aaa" 
+          scale-text-color="#111" 
+          needle-color="#777" 
+          needle-stroke="#000" 
+          ></rockiot-ui>
+      </div>
       
-      <div class="grid-item">
+      <div class="grid-item grd_opciones">
+        <h2>Opciones</h2>
         <a href="/reporte">
           <button class="buttons">Generar Reporte</button>
         </a>
@@ -324,7 +363,6 @@
       <div class="grid-item">8</div>
       <div class="grid-item">9</div>-->
     </div>
-
 
     <div class="dashboard_body">
 
@@ -355,7 +393,7 @@
 
         const season = seasonArray.filter(({ date }) => date <= dta).slice(-1)[0] || {name: "Winter"}
         
-        document.getElementById('grid_center').className = "grid2 "+season.name;
+        document.getElementById('grid_season').className = "grd_season grid-item "+season.name;
         
 
 </script>
