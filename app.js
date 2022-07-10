@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const PORT = 8080
-const SERIAL_PATH = "COM6"
+const SERIAL_PATH = "COM3"
 const BAUDRATE = 9600
 const path = require('path') 
 const nodemailer = require("nodemailer");
@@ -34,8 +34,6 @@ const board =  new SerialPort({
   })  
 const parser = board.pipe(new DelimiterParser({ delimiter: '\n' }))
 const bodyParser = require('body-parser')
-const { isModuleNamespaceObject } = require('util/types')
-
 
 
 const urlencodedParser = bodyParser.urlencoded({ extended: true })
@@ -243,8 +241,7 @@ const registrar = async () =>{
     if (cVal.length == 0){
         cVal = 0
     }
-
-    return (parseFloat(aVal)*(valor^2)+parseFloat(bVal)*valor+parseFloat(cVal)).toFixed(2)
+    return parseFloat((parseFloat(aVal)*(valor^2)+parseFloat(bVal)*valor+parseFloat(cVal)).toFixed(2))
   }
 
 
