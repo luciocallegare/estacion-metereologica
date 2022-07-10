@@ -34,6 +34,7 @@ const board =  new SerialPort({
   })  
 const parser = board.pipe(new DelimiterParser({ delimiter: '\n' }))
 const bodyParser = require('body-parser')
+const { isModuleNamespaceObject } = require('util/types')
 
 
 
@@ -155,7 +156,6 @@ const checkSensor = async () =>{
 }
 const registrar = async () =>{
 
-        
     const registro = {
         temperatura: data.temperatura,
         viento: data.viento,
@@ -278,10 +278,8 @@ try{
                 let bufferString = buffer.toString()
 
                 if (bufferString.indexOf("{") != -1){
-                    //console.log(JSON.parse(bufferString))
                     data = JSON.parse(bufferString)
                     data.viento = conversor(config.funcVien,parseFloat(data.viento))
-
                     if (config.sensor_DHT_temp == 'off'){
                         data.temperatura = conversor(config.funcTemp,parseFloat(data.temperatura))
                     }
@@ -491,20 +489,26 @@ app.post('/generate-report',upload.none(), async(req,res)=>{
 
     rep_param = req.body
 
-
-    //config.alarmaTemp = temps
-    console.log("Entrando");
-    
-
     const registerCollection = client.db('estacionMetereologica').collection('registros')
 
+    console.log(rep_param)
 
-    console.log(rep_param);
     
+    let gte_txt = `${rep_param.fechaInicioReporte}T00:00:00:000Z`
+    if(rep_param.horaInicioReporte != ''){
+        gte_txt = `${rep_param.fechaInicioReporte}T${rep_param.horaInicioReporte}:00:000Z`
+    }
+    let lt_txt = `${rep_param.fechaFinReporte}T24:59:59:000Z`
+    if(rep_param.horaFinReporte != ''){
+        lt_txt = `${rep_param.fechaFinReporte}T${rep_param.horaFinReporte}:59:000Z`
+    }
+
+    console.log(gte_txt)
+    console.log(lt_txt)
     registros = registerCollection.find({
         registeredAt: {
-            $gte: new Date(rep_param.fechaInicioReporte),
-            $lt: new Date(rep_param.fechaFinReporte)
+            $gte: new Date(gte_txt),
+            $lt: new Date(lt_txt)
             /*$gte: new Date('2022-06-10'),
             $lt: new Date('2022-06-12')*/
         }
@@ -571,19 +575,25 @@ app.post('/generate-report',upload.none(), async(req,res)=>{
         worksheet.cell(7,4).string('Humedad').style(st_header);
         
         let row = 8;
+        
         result.forEach(element => {
-            console.log(element);
             worksheet.cell(row,1).date(element.registeredAt).style(st_date);
-            worksheet.cell(row,2).number(element.temperatura).style(st_temp);
-            worksheet.cell(row,3).number(element.viento).style(st_style);
-            worksheet.cell(row,4).number(element.humedad).style(st_style);
+            if(element.temperatura != null && element.temperatura != 'NaN'){
+                worksheet.cell(row,2).number(parseFloat(element.temperatura)).style(st_temp);
+            }
+            if(element.viento != null && element.viento != 'NaN'){
+                worksheet.cell(row,3).number(parseFloat(element.viento)).style(st_style);
+            }
+            if(element.humedad != null && element.humedad != 'NaN'){
+                worksheet.cell(row,4).number(parseFloat(element.humedad)).style(st_style);
+            }
             
             
             row++;
           }
         );
         workbook.write('Excel.xlsx');
-
+        console.log("reporte terminado")
       });
     
 })
@@ -592,7 +602,6 @@ app.post('/generate-report',upload.none(), async(req,res)=>{
 app.post("/subscribe", jsonParser, (req, res) => {
     // Get pushSubscription object
     const subscription = req.body.subscription;
-    console.log(subscription)
   
     // Send 201 - resource created
     res.status(201).json({});
