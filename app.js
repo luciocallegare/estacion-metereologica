@@ -499,12 +499,15 @@ app.post('/generate-report',upload.none(), async(req,res)=>{
     const registerCollection = client.db('estacionMetereologica').collection('registros')
 
 
-    console.log(rep_param);
+    console.log("ASDASDASDSA",rep_param);
+
+    console.log('Fecha inicio', new Date(rep_param.fechaInicioReporte+`T${rep_param.horaInicioReporte}:00Z`))
+    console.log('Fecha fin', new Date(rep_param.fechaFinReporte+`T${rep_param.horaFinReporte}:00Z`))
     
     registros = registerCollection.find({
         registeredAt: {
-            $gte: new Date(rep_param.fechaInicioReporte),
-            $lt: new Date(rep_param.fechaFinReporte)
+            $gte: new Date(rep_param.fechaInicioReporte+`T${rep_param.horaInicioReporte}:00Z`),
+            $lt: new Date(rep_param.fechaFinReporte+`T${rep_param.horaFinReporte}:00Z`)
             /*$gte: new Date('2022-06-10'),
             $lt: new Date('2022-06-12')*/
         }
@@ -584,6 +587,7 @@ app.post('/generate-report',upload.none(), async(req,res)=>{
         );
         workbook.write('Excel.xlsx');
 
+        res.download(path.join(__dirname,'/Excel.xlsx'))
       });
     
 })

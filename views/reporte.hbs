@@ -13,7 +13,7 @@
 
         <div class="input-group">
           <label for="horaInicioReporte">Hora inicio reporte:</label>
-          <input type="time" class="controls" type="number" id="horaInicioReporte" name="horaInicioReporte">
+          <input type="time" class="controls" type="number" id="horaInicioReporte" name="horaInicioReporte" value='00:00'>
         </div>
 
         <div class="input-group">
@@ -23,7 +23,7 @@
 
         <div class="input-group">
           <label for="horaFinReporte">Hora fin reporte:</label>
-          <input type="time" class="controls" type="number" id="horaFinReporte" name="horaFinReporte">
+          <input type="time" class="controls" type="number" id="horaFinReporte" name="horaFinReporte" value='00:00'>
         </div>
 
       <div class="buttons_group">
@@ -54,7 +54,7 @@
         event.stopPropagation();
         event.preventDefault();
         
-        let mensaje = 'Estacion Configurada correctamente';
+        let mensaje = 'Reporte generado correctamente';
 
         const formData = new FormData(form);
 
