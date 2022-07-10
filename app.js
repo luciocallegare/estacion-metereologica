@@ -592,7 +592,6 @@ app.post('/generate-report',upload.none(), async(req,res)=>{
 app.post("/subscribe", jsonParser, (req, res) => {
     // Get pushSubscription object
     const subscription = req.body.subscription;
-    console.log(subscription)
   
     // Send 201 - resource created
     res.status(201).json({});

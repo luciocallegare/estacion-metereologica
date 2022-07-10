@@ -33,7 +33,7 @@
         <input class="controls" type="time" name="horarioLumOn" id="horarioLumOn" value="{{horarioLumOn}}" placeholder="{{horarioLumOn}}">          
       </div>
       <div class="input-group">
-        <label for="horarioLumOff">Horario de encendido de luminaria</label>
+        <label for="horarioLumOff">Horario de apagado de luminaria</label>
         <input class="controls" type="time" name="horarioLumOff" id="horarioLumOff" value="{{horarioLumOff}}" placeholder="{{horarioLumOff}}">          
       </div>
       <div class="input-group">
@@ -118,8 +118,6 @@
         let mensaje = 'Estacion Configurada correctamente';
 
         const formData = new FormData(form);
-
-        console.log("hola")
 
         fetch('/enviar-config',{
           method : "POST",
