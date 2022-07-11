@@ -8,7 +8,7 @@
 
         <div class="input-group">
           <label for="fechaInicioReporte">Fecha inicio reporte:</label>
-          <input type="date" class="controls" type="number" id="fechaInicioReporte" name="fechaInicioReporte">
+          <input type="date" class="controls" type="number" id="fechaInicioReporte" name="fechaInicioReporte" required>
         </div>
 
         <div class="input-group">
@@ -18,7 +18,7 @@
 
         <div class="input-group">
           <label for="fechaFinReporte">Fecha fin reporte:</label>
-          <input type="date" class="controls" type="number" id="fechaFinReporte" name="fechaFinReporte">
+          <input type="date" class="controls" type="number" id="fechaFinReporte" name="fechaFinReporte" required>
         </div>
 
         <div class="input-group">
@@ -36,6 +36,7 @@
         <div id="modal_container" class="modal-container">
           <div id="modal_msj" class="modal">
             <button id="close">Cerrar</button>
+            <a href="/descargar_reporte" id="descargar"><button>Descargar</button></a>
           </div>
         </div>
 
@@ -68,12 +69,16 @@
         .catch((err)=>{
           console.error(err)
           mensaje = 'Error al intentar generar el reporte';
+          document.querySelector("#descargar").remove()
         })
-        .then(()=>{
+        .then((res)=>{
+          if (res.status == 500){
+            mensaje = 'Error al intentar generar el reporte';
+            document.querySelector("#descargar").remove()
+          }
           const button = document.querySelector("#close");
-          
-          const modal_msj = document.querySelector("#modal_msj");
 
+          const modal_msj = document.querySelector("#modal_msj");
           msj_int.innerHTML = mensaje;
           modal_msj.insertBefore(msj_int,button);
           modal.classList.add("show");
@@ -81,7 +86,6 @@
       })
 
       
-        
       closeNode.addEventListener('click', ()=>{
         modal.classList.remove("show")
         msj_int.remove()

@@ -34,8 +34,6 @@ const board =  new SerialPort({
   })  
 const parser = board.pipe(new DelimiterParser({ delimiter: '\n' }))
 const bodyParser = require('body-parser')
-const { type } = require('os')
-
 
 
 const urlencodedParser = bodyParser.urlencoded({ extended: true })
@@ -156,7 +154,6 @@ const checkSensor = async () =>{
 }
 const registrar = async () =>{
 
-        
     const registro = {
         temperatura: data.temperatura,
         viento: data.viento,
@@ -278,10 +275,8 @@ try{
                 let bufferString = buffer.toString()
 
                 if (bufferString.indexOf("{") != -1){
-                    //console.log(JSON.parse(bufferString))
                     data = JSON.parse(bufferString)
                     data.viento = conversor(config.funcVien,parseFloat(data.viento))
-
                     if (config.sensor_DHT_temp == 'off'){
                         data.temperatura = conversor(config.funcTemp,parseFloat(data.temperatura))
                     }
@@ -478,7 +473,7 @@ app.get('/reporte', async(req,res)=>{
 
     if (!usuario){
         res.redirect('/login')
-    }
+    } 
     else {
         
         res.render('reporte')
@@ -491,105 +486,119 @@ app.post('/generate-report',upload.none(), async(req,res)=>{
 
     rep_param = req.body
 
-
-    //config.alarmaTemp = temps
-    console.log("Entrando");
-    
-
     const registerCollection = client.db('estacionMetereologica').collection('registros')
 
-
-    console.log("ASDASDASDSA",rep_param);
-
-    console.log('Fecha inicio', new Date(rep_param.fechaInicioReporte+`T${rep_param.horaInicioReporte}:00Z`))
-    console.log('Fecha fin', new Date(rep_param.fechaFinReporte+`T${rep_param.horaFinReporte}:00Z`))
-    
     registros = registerCollection.find({
         registeredAt: {
             $gte: new Date(rep_param.fechaInicioReporte+`T${rep_param.horaInicioReporte}:00Z`),
             $lt: new Date(rep_param.fechaFinReporte+`T${rep_param.horaFinReporte}:00Z`)
-            /*$gte: new Date('2022-06-10'),
-            $lt: new Date('2022-06-12')*/
         }
     }).toArray(function(err, result) {
-        if (err) throw err;
+        if (err) {
+            console.error(err)
+            res.sendStatus(500)
+            return
+        };
 
-        var workbook = new excel.Workbook({
-            dateFormat: 'm/d/yy hh:mm:ss'
-        });
-
-        // Add Worksheets to the workbook
-        var worksheet = workbook.addWorksheet('Valores');
-        var worksheet2 = workbook.addWorksheet('Sheet 2');
-        
-        // Create a reusable style
-        var st_temp = workbook.createStyle({
-            font: {
-                color: '#FF0800',
-                size: 12
-            },
-            numberFormat: '#,##0.00 °C; (#,##0.00 °C); -'
-        });
-        var st_style = workbook.createStyle({
-            font: {
-                color: '#FF0800',
-                size: 12
-            },
-            numberFormat: '#,##0.00 °C; (#,##0.00 °C); -'
-        });
-        var st_header = workbook.createStyle({
-            font: {
-                color: '#FF0800',
-                size: 14
-            },
-            numberFormat: '#,##0.00; (#,##0.00); -'
-        });
-        var st_date = workbook.createStyle({
-            font: {
-                color: '#FF0800',
-                size: 12
-            },
-            dateFormat: 'm/d/yy hh:mm:ss'
-        });
-        
-        
-        // Set value of cell A1 to 100 as a number type styled with paramaters of style
-        worksheet.cell(1,1).string('Reporte generado desde pagina WEB').style(st_header);
-
-        worksheet.cell(3,1).string('Fecha inicio reporte').style(st_header);
-        worksheet.cell(3,2).date(rep_param.fechaInicioReporte).style(st_date);
-
-        worksheet.cell(3,3).string('Hora inicio reporte').style(st_header);
-        worksheet.cell(3,4).string(rep_param.horaInicioReporte).style(st_date);
-
-        worksheet.cell(4,1).string('Fecha Fin reporte').style(st_header);
-        worksheet.cell(4,2).date(rep_param.fechaFinReporte).style(st_date);
-
-        worksheet.cell(4,3).string('Hora Fin reporte').style(st_header);
-        worksheet.cell(4,4).string(rep_param.horaFinReporte).style(st_date);
-
-        worksheet.cell(7,1).string('Fecha').style(st_header);
-        worksheet.cell(7,2).string('Temperatura').style(st_header);
-        worksheet.cell(7,3).string('Viento').style(st_header);
-        worksheet.cell(7,4).string('Humedad').style(st_header);
-        
-        let row = 8;
-        result.forEach(element => {
-            console.log(element);
-            worksheet.cell(row,1).date(element.registeredAt).style(st_date);
-            worksheet.cell(row,2).number(element.temperatura).style(st_temp);
-            worksheet.cell(row,3).number(element.viento).style(st_style);
-            worksheet.cell(row,4).number(element.humedad).style(st_style);
+        try{
+            var workbook = new excel.Workbook({
+                dateFormat: 'm/d/yy hh:mm:ss'
+            });
+    
+            // Add Worksheets to the workbook
+            var worksheet = workbook.addWorksheet('Valores');
+            var worksheet2 = workbook.addWorksheet('Sheet 2');
             
+            // Create a reusable style
+            var st_temp = workbook.createStyle({
+                font: {
+                    color: '#FF0800',
+                    size: 12
+                },
+                numberFormat: '#,##0.00; (#,##0.00); -'
+            });
+            var st_hum = workbook.createStyle({
+                font: {
+                    color: '#FF0800',
+                    size: 12
+                },
+                numberFormat: '#,##0.00; (#,##0.00); -'
+            });
+            var st_viento = workbook.createStyle({
+                font: {
+                    color: '#FF0800',
+                    size: 12
+                },
+                numberFormat: '#,##0.00; (#,##0.00); -'
+            });
+            var st_header = workbook.createStyle({
+                font: {
+                    color: '#FF0800',
+                    size: 14
+                },
+                numberFormat: '#,##0.00; (#,##0.00); -'
+            });
+            var st_date = workbook.createStyle({
+                font: {
+                    color: '#FF0800',
+                    size: 12
+                },
+                dateFormat: 'm/d/yy hh:mm:ss'
+            });
             
-            row++;
-          }
-        );
-        workbook.write('Excel.xlsx');
+             
+            // Set value of cell A1 to 100 as a number type styled with paramaters of style
+            worksheet.cell(1,1).string('Reporte generado desde pagina WEB').style(st_header);
+    
+            worksheet.cell(3,1).string('Fecha inicio reporte').style(st_header);
+            worksheet.cell(3,2).date(rep_param.fechaInicioReporte).style(st_date);
+    
+            worksheet.cell(3,3).string('Hora inicio reporte').style(st_header);
+            worksheet.cell(3,4).string(rep_param.horaInicioReporte).style(st_date);
+    
+            worksheet.cell(4,1).string('Fecha Fin reporte').style(st_header);
+            worksheet.cell(4,2).date(rep_param.fechaFinReporte).style(st_date);
+    
+            worksheet.cell(4,3).string('Hora Fin reporte').style(st_header);
+            worksheet.cell(4,4).string(rep_param.horaFinReporte).style(st_date);
+    
+            worksheet.cell(7,1).string('Fecha').style(st_header);
+            worksheet.cell(7,2).string('Temperatura (°C)').style(st_header);
+            worksheet.cell(7,3).string('Viento (Km/h').style(st_header);
+            worksheet.cell(7,4).string('Humedad (%)').style(st_header);
+            
+            let row = 8;
+            result.forEach(element => {
+                //console.log(element)
+                worksheet.cell(row,1).date(element.registeredAt).style(st_date);
+                if(typeof element.temperatura === 'number' && !isNaN(element.temperatura)){
+                    worksheet.cell(row,2).number(parseFloat(element.temperatura)).style(st_temp);
+                }
+                if(typeof element.viento === 'number' && !isNaN(element.viento)){
+                    worksheet.cell(row,3).number(parseFloat(element.viento)).style(st_viento);
+                }
+                if( typeof element.humedad === 'number' && !isNaN(element.humedad)){
+                    worksheet.cell(row,4).number(parseFloat(element.humedad)).style(st_hum);
+                }
+                
+                 
+                row++;
+              }
+            );
+            workbook.write('Excel.xlsx');
+    
+            res.sendStatus(200)
 
-        res.download(path.join(__dirname,'/Excel.xlsx'))
+        }catch(err){
+            console.error(err)
+            res.sendStatus(500)
+        }
       });
     
+})
+
+app.get('/descargar_reporte',(req,res)=>{
+    res.download(path.join(__dirname,'/Excel.xlsx'),`reporte${new Date()}.xlsx`)
 })
 
 // Subscribe Route
