@@ -598,7 +598,9 @@ app.post('/generate-report',upload.none(), async(req,res)=>{
 })
 
 app.get('/descargar_reporte',(req,res)=>{
-    res.download(path.join(__dirname,'/Excel.xlsx'),`reporte${new Date()}.xlsx`)
+    const fechaHoy = new Date()
+    const nameFile = `reporteDel${fechaHoy.getDate()}-${fechaHoy.getMonth()}-${fechaHoy.getFullYear()}-${fechaHoy.getMinutes()}h${fechaHoy.getSeconds()}m`
+    res.download(path.join(__dirname,'/Excel.xlsx'),nameFile)
 })
 
 // Subscribe Route
