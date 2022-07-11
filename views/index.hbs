@@ -109,8 +109,6 @@
         document.getElementById("presion_icon_container").innerHTML='<img src="/public/presion_icon.png" height="50px">';
 
         if ("serviceWorker" in navigator) {
-          console.log(d.config.alarmaTemp)
-
           if (parseFloat(d.config.alarmaTemp[0]) > parseFloat(d.temperatura) && estadoAlarmaTempMax){
             send({
               body: "Temperatura minima alcanzada",

@@ -569,20 +569,25 @@ app.post('/generate-report',upload.none(), async(req,res)=>{
             
             let row = 8;
             result.forEach(element => {
-                //console.log(element)
-                worksheet.cell(row,1).date(element.registeredAt).style(st_date);
+                let datosLeidos = 0
                 if(typeof element.temperatura === 'number' && !isNaN(element.temperatura)){
                     worksheet.cell(row,2).number(parseFloat(element.temperatura)).style(st_temp);
+                    datosLeidos+=1
                 }
                 if(typeof element.viento === 'number' && !isNaN(element.viento)){
                     worksheet.cell(row,3).number(parseFloat(element.viento)).style(st_viento);
+                    datosLeidos+=1
                 }
                 if( typeof element.humedad === 'number' && !isNaN(element.humedad)){
                     worksheet.cell(row,4).number(parseFloat(element.humedad)).style(st_hum);
+                    datosLeidos+=1
                 }
-                
+
+                if (datosLeidos >0){
+                    worksheet.cell(row,1).date(element.registeredAt).style(st_date);
+                    row++;
+                }
                  
-                row++;
               }
             );
             workbook.write('Excel.xlsx');
@@ -599,7 +604,7 @@ app.post('/generate-report',upload.none(), async(req,res)=>{
 
 app.get('/descargar_reporte',(req,res)=>{
     const fechaHoy = new Date()
-    const nameFile = `reporteDel${fechaHoy.getDate()}-${fechaHoy.getMonth()}-${fechaHoy.getFullYear()}-${fechaHoy.getMinutes()}h${fechaHoy.getSeconds()}m`
+    const nameFile = `reporteDel${fechaHoy.getDate()}-${fechaHoy.getMonth()+1}-${fechaHoy.getFullYear()}-${fechaHoy.getHours()}h${fechaHoy.getMinutes()}m`
     res.download(path.join(__dirname,'/Excel.xlsx'),nameFile)
 })
 
