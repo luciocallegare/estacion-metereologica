@@ -604,7 +604,7 @@ app.post('/generate-report',upload.none(), async(req,res)=>{
 
 app.get('/descargar_reporte',(req,res)=>{
     const fechaHoy = new Date()
-    const nameFile = `reporteDel${fechaHoy.getDate()}-${fechaHoy.getMonth()+1}-${fechaHoy.getFullYear()}-${fechaHoy.getHours()}h${fechaHoy.getMinutes()}m`
+    const nameFile = `reporteDel${fechaHoy.getDate()}-${fechaHoy.getMonth()+1}-${fechaHoy.getFullYear()}-${fechaHoy.getHours()}h${fechaHoy.getMinutes()}m.xlsx`
     res.download(path.join(__dirname,'/Excel.xlsx'),nameFile)
 })
 
